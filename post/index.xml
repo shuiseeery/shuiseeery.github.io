@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>有所思</title>
-    <link>https://shuiseeery.github.io/</link>
-    <description>Recent content on 有所思</description>
+    <title>Posts on 有所思</title>
+    <link>https://shuiseeery.github.io/post/</link>
+    <description>Recent content in Posts on 有所思</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-cn</language>
-    <lastBuildDate>Sun, 31 Jan 2021 08:36:54 -0700</lastBuildDate><atom:link href="https://shuiseeery.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 31 Jan 2021 08:36:54 -0700</lastBuildDate><atom:link href="https://shuiseeery.github.io/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>初入江湖——数据分析师做什么</title>
       <link>https://shuiseeery.github.io/post/1-firstday/</link>

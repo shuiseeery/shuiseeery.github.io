@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>存放数据的地方——数据库 &middot; 有所思</title>
+  <meta name="description" content="数据库构成，为什么需要收集数据" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>存放数据的地方——数据库</h1>
+  <time datetime=2021-01-29T08:36:54-0700 class="post-date">Fri, Jan 29, 2021</time>
+  <p>第二天，小不懂给于雷讲了自己在数据表中的发现，于雷点点头，说今天讲新东西。</p>
+<p> </p>
+<p>于雷：昨天了解了数据表是什么，今天来介绍下数据库相关的知识。<strong>数据库是保存数据表的容器</strong>。我们用圆柱体标记数据库，圆柱体能装大量数据表。像下面这张图。</p>
+<p>小不懂：哈哈，你画的数据库确实胖乎乎的，能装很多东西。database是英文名吧。</p>
+<p><img src="/anay_pic/sql_pic/3-database.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p> </p>
+<p>于雷：对。<strong>数据库时时刻刻围绕在我们身边</strong>。每次网购，推荐算法根据我们的历史浏览记录，推荐可能喜欢的商品给我们，这个过程中，历史浏览记录储存在数据库中，算法挑选出的推荐商品，也存储在数据库里；</p>
+<p>类似地，每次使用健康宝扫码时，位置信息也被存储在数据库中。有病例确诊时，通过调取该患者的轨迹信息，防疫部门把在一定时间内，去过相同位置的人作为密切接触者，对他们进行隔离观察，能够有效阻止疫情传播；
+这样的例子还有很多，像信用卡账单信息、搜索记录、社交媒体上的好友信息等等。你能想到一些例子吗？</p>
+<p><img src="/anay_pic/sql_pic/3-database%20everywhere.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：唔，我们学校的选课信息、国家人口普查信息、招聘网站职位与简历、医院药品库存、患者电子病例。仔细想想，周围隐形数据库真多。</p>
+<p>于雷：嗯。你刚刚提到的例子，有个很重要的特点，<strong>数据库都存储着特定的信息。数据本质是信息。社会上存储大量数据，是在有针对性地收集信息</strong>。为什么需要收集、存储信息呢？</p>
+<p> </p>
+<p> </p>
+<p>小不懂：因为有用？肯定是因为有用才收集的，不过为什么有用呢？</p>
+<p>于雷：哈哈，确实因为有价值，才需要收集大量数据。<strong>大多情况下，人的行为都可以从利益关系入手来分析，无利不起早</strong>。信息反应事物的状态及其变化，比如快递运输信息，标记快递的运送状态；患者历史病症，标记患者的健康状态；历史购物记录，标记顾客的购买行为规律及偏好。
+收集信息能更好地掌握现状。有句话叫“如果你不能衡量现状，就不能改进现状。”<strong>收集信息是为了掌控现状，降低不确定性，方便对现状加以分析优化</strong>。</p>
+<p>小不懂：类似对症下药？</p>
+<p>于雷：是的。了解患者的病情，才能知道患者有什么问题，进而做出判断，给患者用药，改善病情。<strong>数据是信息的载体</strong>。</p>
+<p>小不懂：<strong>所以我们观察数据时，得明白数据背后的信息</strong>。</p>
+<p>于雷：对。你回想下昨天说的，把数据扩展为完整故事，它们意思一样。</p>
+<p>小不懂点点头。</p>
+<p> </p>
+<p> </p>
+<p>于雷继续：说回数据库。数据库是保存表的容器，像下面这张图示意的样子：</p>
+<p><img src="/anay_pic/sql_pic/3-table%20container.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：有点像超大型excel，里面有多个sheet，每个sheet有一张表。</p>
+<p>于雷：也可以这么理解。不过excel能存储的数据量有限，几十万行数据电脑便容易卡死。数据库能轻松处理上亿行数据。</p>
+<p>小不懂：哇，巨无霸数据处理工具。</p>
+<p>于雷：哈哈哈，数据库能存储、并处理大量数据，确实是巨无霸。等你多接触一段时间，会有更深感受。今天你安装一下Mysql 和Sublime text，Mysql是一个开源关系型数据库，我们今后要用Mysql来处理数据；Sublime text是一个跨平台的文本编辑器，使用它来编写数据库查询代码。</p>
+<p>Mysql安装可以参考这个文档：https://cloud.tencent.com/developer/article/1636375</p>
+<p>Sublime text 可以从官网下载安装程序，如果网络卡，可以找其他途径。</p>
+<p>小不懂：好。</p>
+<p> </p>
+<p>小不懂回到工位，按文档说明装好了Mysql和Sublime text。</p>
+<p>读者朋友，你安装好了吗？</p>
+<p> </p>
+<p> </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

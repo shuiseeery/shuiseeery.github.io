@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>找到需要的信息——select &middot; 有所思</title>
+  <meta name="description" content="从数据表中筛选信息" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>找到需要的信息——select</h1>
+  <time datetime=2021-01-27T08:36:54-0700 class="post-date">Wed, Jan 27, 2021</time>
+  <p>下午，于雷叫小不懂过去，给她讲SQL的基本操作。</p>
+<p>于雷说：我们有很多卖家，现在运营同学需要选一批北京的优质卖家，来打造“母婴用品购物节”，想选择一批深受消费者喜欢的、生产婴儿用品的卖家，邀请供应商与平台一起做活动。我们一起来看看，怎么解决这个问题。</p>
+<p>小不懂：好的~ 应该有个表，记录卖家的信息？如所在城市、品类、销量、知名度等数据？</p>
+<p>于雷：是的。卖家信息表：seller_info，这张表。我们来看看，表里有哪些信息。</p>
+<p> </p>
+<p>于雷：首先</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">desc</span> seller_info; 
+</code></pre></div><p>这样我们可以看到，数据表的结构是怎样的。你看到了什么信息？</p>
+<p><img src="/anay_pic/sql_pic/desc%20table.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：卖家id是主键，里面有省份、城市、邮编等信息。</p>
+<p>于雷：对。seller_info 是数据表的名称，你可以把它换成其他任何数据表。另外，需要注意，<strong>结尾要加封号</strong>，告诉计算机，这段代码结束了。</p>
+<p> </p>
+<p>接下来我们来看表里具体的数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_info;  
+</code></pre></div><p>小不懂：哇，屏幕上滚动了好多数据。这是把表里所有的数据都“秀”出来了吗？</p>
+<p><img src="/anay_pic/sql_pic/select%201.png" alt="Hugo使用图片资源"></p>
+<p>一会儿，屏幕滚动完，显示一共有3095行数据。</p>
+<p>小不懂：看着好炫酷。很有黑客帝国的感觉hhh</p>
+<p><img src="/anay_pic/sql_pic/select%202.png" alt="Hugo使用图片资源"></p>
+<p>于雷：哈哈哈。你学会这个，可以在电脑小白面前吹牛。这个命令会把表里所有的数据都加载出来，看着很酷。</p>
+<p>不过一般来说，不需要把所有的数据都展示出来，抽几十条就可以。为达到这个目的，需要用limit 来控制展示行数</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;  
+</code></pre></div><p><img src="/anay_pic/sql_pic/select%20limit.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：嗯，我会了。如果我想显示20行，把10改成20就可以，对吧？</p>
+<p>于雷：是的。除了select * 之外，还可以指定你想筛选的列，比如我们只想要卖家id 和城市：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> seller_id, city <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/select%20column.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哦哦，类似于从excel数据表里，选中2列，复制到另一个工作簿里。</p>
+<p>于雷：嗯，可以这么理解。你想想， select * from seller_info 可以等同于怎么写呢?</p>
+<p>小不懂：select seller_id,  seller_zip_code_prefix,city, province from seller_info;   select * 是偷懒的方法。</p>
+<p>于雷：对。可以少敲很多下键盘。你再观察一下city这列里具体的值，有什么发现？</p>
+<p>小不懂：有一个“NULL”，是数据库里的空值吗？我们不知道这个卖家在哪个城市。</p>
+<p>于雷：对，<strong>“NULL”是数据库里的空值</strong>，遇到时需要小心处理。</p>
+<p> </p>
+<p>于雷：下一步，我们要选择北京的供应商。</p>
+<p>小不懂：是不是加一个城市=北京的条件，像excel里面的筛选一样？</p>
+<p>于雷：对。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> city<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;北京&#39;</span> <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>; 
+</code></pre></div><p>你观察以下，里面有哪些特别的地方呢？</p>
+<p><img src="/anay_pic/sql_pic/where%20char%20equal.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：加了where，“哪里”， 这是筛选的语句吧？ 另外，<strong>北京用引号引起来的</strong></p>
+<p>于雷：观察得很敏锐。<strong>所有字符型的数据，都需要用引号括起来</strong>，否则计算机会以为你在指列名。</p>
+<p>​          city=&lsquo;北京&rsquo; 告诉计算机，我们只需要其中city内容为北京的行。</p>
+<p>​          你再想想，select 列名 from 表名 where 列名=xx ， 在这里， where 和select 分别对什么起作用？</p>
+<p>小不懂：<strong>select 选择需要的列， where 按条件对行做筛选</strong></p>
+<p>于雷：对。这点一定要记清楚。这是SQL的语法规则，就像我们说&quot;我吃饭&quot;，不说“饭吃我”一样，是约定俗称，大家都需要遵守的规范。如果写错了，计算机会傻傻地告诉你“这里有一个error”</p>
+<p>小不懂：嗯嗯，我记住了。</p>
+<p> </p>
+<p>于雷：好。这一节先到此为止。你打开mysql，把上面的代码自己实现一遍。另外求一下我们在陕西和湖北省一共有多少卖家，告诉我具体数目。</p>
+<p>小不懂：好的。mysql界面黑黑的，看着不太习惯。</p>
+<p>于雷：不要紧张，<strong>不要怕黑</strong>，这个数据库界面没什么可怕的，学会基本的操作命令，你可以让数据库做任何你希望的计算。别被看起来炫酷的操作界面吓住。</p>
+<p>小不懂：嗷嗷，好b（￣▽￣）d　</p>
+<p>于雷：sql是一门简单的编程语言，<strong>学编程最重要的是动手实操</strong>，<strong>只学理论不会实践假把式</strong>。你好好练习啊。</p>
+<p>小不懂：嗯嗯，知道了</p>
+<p> </p>
+<p> </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

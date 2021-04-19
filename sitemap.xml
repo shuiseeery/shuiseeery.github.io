@@ -2,10 +2,29 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://shuiseeery.github.io/post/</loc>
+    <lastmod>2021-01-31T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/post/1-firstday/</loc>
+    <lastmod>2021-01-31T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/</loc>
+    <lastmod>2021-01-31T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/post/2-table/</loc>
+    <lastmod>2021-01-30T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/post/3-0-database/</loc>
+    <lastmod>2021-01-29T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/post/3-1-upload-data/</loc>
+    <lastmod>2021-01-28T08:36:54-07:00</lastmod>
+  </url><url>
+    <loc>https://shuiseeery.github.io/post/4-select/</loc>
+    <lastmod>2021-01-27T08:36:54-07:00</lastmod>
+  </url><url>
     <loc>https://shuiseeery.github.io/categories/</loc>
   </url><url>
     <loc>https://shuiseeery.github.io/tags/</loc>
-  </url><url>
-    <loc>https://shuiseeery.github.io/</loc>
   </url>
 </urlset>

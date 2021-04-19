@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>数据背后的故事——数据表 &middot; 有所思</title>
+  <meta name="description" content="探索数据表结构，从数据中读出故事" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>数据背后的故事——数据表</h1>
+  <time datetime=2021-01-30T08:36:54-0700 class="post-date">Sat, Jan 30, 2021</time>
+  <p>第二天，小不懂刚刚到公司，于雷发给她一张表格，让她先自己看看，表格有什么特点，从中能得到什么信息。</p>
+<p>表格如下：</p>
+<table>
+<thead>
+<tr>
+<th>user_name</th>
+<th>user_id</th>
+<th>gender</th>
+<th>age</th>
+<th>address</th>
+<th>is_married</th>
+<th>have_baby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>李雷</td>
+<td>A1</td>
+<td>男</td>
+<td>23</td>
+<td>北京西城区</td>
+<td>未婚</td>
+<td>无</td>
+</tr>
+<tr>
+<td>韩梅梅</td>
+<td>A2</td>
+<td>女</td>
+<td>22</td>
+<td>北京东城区</td>
+<td>未婚</td>
+<td>无</td>
+</tr>
+<tr>
+<td>王大锤</td>
+<td>B3</td>
+<td>男</td>
+<td>27</td>
+<td>上海黄浦区</td>
+<td>已婚</td>
+<td>无</td>
+</tr>
+<tr>
+<td>张爱国</td>
+<td>B4</td>
+<td>男</td>
+<td>35</td>
+<td>合肥蜀山区</td>
+<td>已婚</td>
+<td>有</td>
+</tr>
+<tr>
+<td>刘进步</td>
+<td>C5</td>
+<td>男</td>
+<td>40</td>
+<td>深圳福田区</td>
+<td>未婚</td>
+<td>无</td>
+</tr>
+<tr>
+<td>王大锤</td>
+<td>D6</td>
+<td>女</td>
+<td>28</td>
+<td>南京玄武区</td>
+<td>已婚</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p>小不懂收到后，开始观察：</p>
+<p>首先表格有6行、7列，是一张用户信息表，里面记录了用户名、用户id、性别、年龄、地址、是否结婚、是否有孩子等信息；</p>
+<p>其次，6个用户4男2女；年龄在22~40之间，居住在北京、上海、合肥、深圳、南京等城市。3个未婚，3个已婚，1个有孩子，1个不清楚有没有孩子。</p>
+<p>另外，有2个人叫“王大锤”，一男一女。</p>
+<p> </p>
+<p>她把这些信息告诉于雷。</p>
+<p>于雷：你说的不错。只观察李雷，能看到什么信息呢？</p>
+<p>小不懂：李雷，男性，23岁，住在北京西城区，未婚，没有孩子，用户id是A1。</p>
+<p>于雷：嗯。你描述的不错，每一列都是关于用户的一类信息。<strong>把每一列取出来</strong>，    <strong>都是一个对象的小故事</strong> 。在这张表里，每一行代表什么呢？</p>
+<p>小不懂：每一行是一个用户，也是<strong>这张表关注的对象</strong>。</p>
+<p>于雷：我们怎么标识一个用户呢？</p>
+<p>小不懂：根据用户名称，李雷是一个人、韩梅梅是另一个。</p>
+<p> </p>
+<p>于雷：用户名一样的情况怎么办？</p>
+<p>小不懂：嗯，这两个“王大锤”，他们的用户ID不一样，可以用ID来区别他们。</p>
+<p>于雷：对。用户ID是不一样的。用户ID像身份证号码一样，是我们用来<strong>唯一标记每一条记录的</strong>。每一张工作中接触到的表，都经过合理的设计。每张表都有一个列是唯一标记，称为<strong>主键</strong>，我们用它来区分表里每一行的记录。</p>
+<p><strong>拿到一张新的表，首先需要找到主键，确定表格的主要对象</strong>，其余每一列，提供一个信息来描述该对象。</p>
+<p>每一行，都是一个特定对象的信息集合。</p>
+<p>小不懂：我理解了。每行里的主键都是我们关注的对象。那如果数据有几十列，怎么找到主键呢？</p>
+<p>于雷：表设计者会提供主键信息。我们写一行代码就能取出来。代码先不急，我们先搞清楚，表格(table) 是什么。</p>
+<p> </p>
+<p>于雷：你再观察看看，每一列有什么特点呢？</p>
+<p>小不懂：每一列的内容都是相似的。提供类似的信息。</p>
+<p>于雷：对。你再观察观察数据格式呢？</p>
+<p>小不懂：数据格式，有些是数字，有些是文字。</p>
+<p>于雷：<strong>常用的数据类型是这两种：数字、文本。分别提供不同的信息</strong>。除此之外，看看文本内容，有什么发现吗？</p>
+<p>小不懂：(⊙﹏⊙)，想不到其他的了。</p>
+<p>于雷：从文本内容看，性别分男、女两类，是否结婚分 已婚、未婚2类；类似地是否有小孩、地址也是。它们都是<strong>分类变量</strong>。而年龄是连续数值变量。数值变量可以做加、减运算，可以比较大小，但分类变量不行。</p>
+<p>小不懂：分类变量是用来分类的。把人分成男女、已婚未婚 可以分别观察该类别人群的特点。</p>
+<p> </p>
+<p>于雷：还有一个值得注意的地方，王大锤（D6）有没有孩子呢？</p>
+<p>小不懂：不知道。我们没有这个信息。</p>
+<p>于雷：这类数据缺失的情况，我们称为<strong>缺失值</strong>，或者“空值”。在实际情况中，我们没有收集到这位王大锤有无孩子的信息，这个值留空，不做处理。不能瞎填。</p>
+<p>小不懂：哦。对获取不到的数据，就空着。清楚有缺失值就好？</p>
+<p>于雷：对。缺失值的处理，之后我们遇到时具体讲。你先总结一下，怎么看一张表。</p>
+<p> </p>
+<p>小不懂想了想：</p>
+<ol>
+<li>需要找到主键，主键是表格的对象</li>
+<li>观察每一列，每一列提供一个关于主键的信息</li>
+<li>看每一列里面的数据类型，是数值，还是文本，文本通常都是分类变量。有时会遇到缺失值，需要特别关注。</li>
+<li>观察某一行，把所有列串起来，讲一个小故事</li>
+</ol>
+<p>于雷赞许地点点头。给她2张新表，让她按上面4点，读一读表里的信息，写出来。</p>
+<p> </p>
+<p>表一：</p>
+<table>
+<thead>
+<tr>
+<th>user_name</th>
+<th>user_id</th>
+<th>date</th>
+<th>log_id</th>
+<th>purchase_items</th>
+<th>price</th>
+<th>pay_type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>李雷</td>
+<td>A1</td>
+<td>1月10日</td>
+<td>rsq_1</td>
+<td>抽纸</td>
+<td>18</td>
+<td>微信</td>
+</tr>
+<tr>
+<td>李雷</td>
+<td>A1</td>
+<td>12月30日</td>
+<td>rsq_ab</td>
+<td>土豆、啤酒、牛肉</td>
+<td>74.3</td>
+<td>手机银行</td>
+</tr>
+<tr>
+<td>王大锤</td>
+<td>B3</td>
+<td>1月3日</td>
+<td>aqz_3</td>
+<td>钢笔、薯片</td>
+<td>30</td>
+<td>微信</td>
+</tr>
+<tr>
+<td>韩梅梅</td>
+<td>A2</td>
+<td>1月7日</td>
+<td>xsa_1</td>
+<td>粉丝、豆芽、红薯</td>
+<td>34</td>
+<td>微信</td>
+</tr>
+<tr>
+<td>王大锤</td>
+<td>D6</td>
+<td>1月6日</td>
+<td>sxlab</td>
+<td>唇膏、洗发水</td>
+<td>86</td>
+<td>手机银行</td>
+</tr>
+<tr>
+<td>韩梅梅</td>
+<td>A2</td>
+<td>1月14日</td>
+<td>dkak_ss</td>
+<td>肉末、豌豆、芋头、香肠</td>
+<td>60</td>
+<td>微信</td>
+</tr>
+<tr>
+<td>韩梅梅</td>
+<td>A2</td>
+<td>1月9日</td>
+<td>dakal_sl</td>
+<td>矿泉水</td>
+<td>3.5</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p> </p>
+<p>表二：</p>
+<table>
+<thead>
+<tr>
+<th>date</th>
+<th>city</th>
+<th>sale_amount(销售额）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1月10日</td>
+<td>北京</td>
+<td>909</td>
+</tr>
+<tr>
+<td>1月10日</td>
+<td>上海</td>
+<td>608</td>
+</tr>
+<tr>
+<td>1月10日</td>
+<td>成都</td>
+<td>582</td>
+</tr>
+<tr>
+<td>1月10日</td>
+<td>广州</td>
+<td>232</td>
+</tr>
+<tr>
+<td>1月10日</td>
+<td>杭州</td>
+<td>589</td>
+</tr>
+<tr>
+<td>1月10日</td>
+<td>西宁</td>
+<td>11</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>北京</td>
+<td>609</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>上海</td>
+<td>70</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>成都</td>
+<td>642</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>广州</td>
+<td>596</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>杭州</td>
+<td>72</td>
+</tr>
+<tr>
+<td>1月11日</td>
+<td>西宁</td>
+<td>23</td>
+</tr>
+</tbody>
+</table>
+<p>小不懂想这可难不倒她，开心地回去读表了。</p>
+<hr>
+<p>亲爱的读者，你从这些表里读出了什么信息？欢迎留言~~~~</p>
+<p>请写出你看到的，数据的故事~</p>
+<p> </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
