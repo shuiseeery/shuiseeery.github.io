@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>5.  用统计眼光看数据表——聚合函数 &middot; 有所思</title>
+  <meta name="description" content="类似于Excel数据透视表，Sql提供丰富的聚合函数来探索数据" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>5.  用统计眼光看数据表——聚合函数</h1>
+  <time datetime=2021-01-26T08:36:54-0700 class="post-date">Tue, Jan 26, 2021</time>
+  <p>第二天早上，小不懂来找于雷交练习作业：陕西99个、湖北145个。</p>
+<p>计算代码是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;陕西&#39;</span>;
+
+<span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;湖北&#39;</span>;
+</code></pre></div><p>从数据库最后的汇总行数中，读出卖家个数。</p>
+<p> </p>
+<p>于雷：不错。不过如果湖北有10万个卖家，数据库把所有信息滚动展示出来，会花费很长时间。还有一个更好的办法。</p>
+<p>小不懂：是什么办法呢？能直接看到结果肯定更好。</p>
+<p>于雷：SQL有个函数专门用来<strong>计算指定列的行数</strong>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(seller_id) 
+<span style="color:#66d9ef">from</span> seller_info 
+<span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;陕西&#39;</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-count-id.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哇！这个好~~~</p>
+<p> </p>
+<p>于雷：你自己想一下，想知道我们总共有多少卖家，需要怎么计算？</p>
+<p>小不懂：嗯，应该是从表里直接count卖家id：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(seller_id) 
+<span style="color:#66d9ef">from</span> seller_info;
+</code></pre></div><p>她说着，在电脑上敲下代码：结果立刻出来了：</p>
+<p><img src="/anay_pic/sql_pic/5-count-id.png" alt="Hugo使用图片资源"></p>
+<p>于雷赞许地点点头：不错。</p>
+<p> </p>
+<p>现在我们可以取出北京地区所有的卖家。但这不是我们需要的。我们想找北京地区所有的婴儿用品卖家。</p>
+<p>小不懂：我知道。我们还需要卖家售卖商品的信息。我们有这样的数据表吗？</p>
+<p>于雷：有。seller_product_summary这张表，你先自己探索下看看，十五分钟后告诉我，有什么收获。</p>
+<p> </p>
+<p>小不懂回到工位，想起前几天学的，探索表信息的方法，先用</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"> <span style="color:#66d9ef">desc</span> seller_product_summary;
+</code></pre></div><p>查看表结构：</p>
+<p><img src="/anay_pic/sql_pic/5-desc-table.png" alt="Hugo使用图片资源"></p>
+<p>哦，<strong>卖家id 和 商品分类共同构成了主键</strong>，有趣。也就是说，卖家id可能有重复值，商品分类也可能有重复值，但卖家id 和商品分类 结合起来，是唯一的。</p>
+<p>订单数和订单价值是，某卖家在某一个品类下的订单数和订单价值。</p>
+<p> </p>
+<p>再看看数据具体是什么样子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary 
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>; 
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-exp-seller-cat.png" alt="Hugo使用图片资源"></p>
+<p>果然，卖家id有重复的，一个卖家可能会卖多个品类的商品，比如红框里那位卖家，卖园艺工材。</p>
+<p>另外有些商品品类信息是空值。</p>
+<p>初步看，订单数和订单价值差异比较大，订单数从1到几百；订单价值从98到2万多。</p>
+<p> </p>
+<p>看看一共有多少行数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(seller_id) 
+<span style="color:#66d9ef">from</span> seller_product_summary ;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-distinct-total_num.png" alt="Hugo使用图片资源"></p>
+<p>6千多行，还挺多的。</p>
+<p>下一步，针对我们关注的卖家id 和品类，多取一点数出来看看：</p>
+<p><img src="/anay_pic/sql_pic/5-exp-20-data.png" alt="Hugo使用图片资源"></p>
+<p>太好了，在这里出现了婴儿用品。另外，果然不出所料，商品类型也有重复的</p>
+<p>来看看婴儿用品卖家的数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary 
+<span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span> 
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+
+
+<span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span>;
+</code></pre></div><p>一共有244个婴儿用品卖家。</p>
+<p><img src="/anay_pic/sql_pic/5-baby-products.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>小不懂告诉于雷：</p>
+<p>这张表记录了卖家在每个品类下的订单数、订单价值，主键是卖家id+品类名称，一共6615行；卖家id、品类名称各自都有重复值，但卖家id+品类名称组合起来是唯一的；不同卖家的订单数、订单价值数值差异较大；品类名称有空值；此外里面有244个婴儿用品卖家</p>
+<p>于雷：挺好的，很全面。你提到说，不同卖家的订单数、订单价值差异较大，这个有什么办法进一步刻画吗？</p>
+<p>小不懂：嗯，应该可以看最大值、最小值、平均数？</p>
+<p>于雷：对。对应的函数分别是<strong>max()、min()、avg()</strong>，求一列数的最大、最小、平均值。你自己试试看。</p>
+<p> </p>
+<p>小不懂在数据库里敲：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">max</span>(order_num), 
+	<span style="color:#66d9ef">min</span>(order_num), 
+	<span style="color:#66d9ef">avg</span>(order_num) 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-max,min,avg.png" alt="Hugo使用图片资源"></p>
+<p>哇，订单数差异是很大哎，最大1469，最小1个，平均值15个。</p>
+<p>于雷：嗯，你再看看订单价值，其实也就是订单金额的情况。这次呢，可以给每一列查询结果重新起个名字，在函数后直接加 as 新名字， 比如select max(order_num) as max_order , min(order_num) as min_order  这样的，方便理解。</p>
+<p> </p>
+<p>小不懂继续敲：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">max</span>(order_values) <span style="color:#66d9ef">as</span> max_value, 
+	<span style="color:#66d9ef">min</span>(order_values) <span style="color:#66d9ef">as</span> min_value, 
+	<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_value 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-max,min,avg2.png" alt="Hugo使用图片资源"></p>
+<p>喔，订单金额差异更大，最大20万，最小2.5，平均2054块。</p>
+<p> </p>
+<p>于雷：熟练掌握这些函数可以让你更好地了解数据表。求平均值还有另一种方式，把所有数值求和再除以数据个数。sql里求和是sum()，你用sum() 和 count() 自己试试，看结果是不是一样的。</p>
+<p>小不懂：好。</p>
+<p>她敲了两种算平均值的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_value_1, 
+	<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">count</span>(order_values) <span style="color:#66d9ef">as</span> avg_value_2 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-avg,sum.png" alt="Hugo使用图片资源"></p>
+<p>一样的。又学到一个新工具~ 真好。</p>
+<p> </p>
+<p>于雷：你那会儿提到，表里品类名称有重复的？</p>
+<p>小不懂：对。同一个品类会有不同卖家在售卖，像婴儿用品有244个卖家，所以有244条记录。</p>
+<p>于雷：我需要知道我们一共有多少品类，你有什么办法吗？</p>
+<p>小不懂：唔，我猜应该有个做去掉重复值的函数？</p>
+<p>于雷：哈哈哈。学得不错，会抢答了。 <strong>distinct</strong>，直接加在列名前面就可以。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">distinct</span> product_category_name 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-distinct.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>小不懂：我有个问题，为什么它的写法不是 distinct(seller_id) 呢？</p>
+<p>于雷：哈哈，好问题。你看，count()、sum()这些函数的结果是什么？
+小不懂：是一个数值。
+于雷：你再看看，distinct 的结果是什么？
+小不懂：是一列数。哦，我明白了，distinct 对列去重后的结果，依然是一列数。和其他函数不一样，为了区分，所以用不同的格式。
+于雷：对。能发现这个很不错。你再想想，如果是两列数，应该怎么写？
+小不懂：嗯？没太明白，是对A,B两列做去重吗？
+于雷：嗯。你想想， distinct product_category_name、 distinct seller_id 和 distinct product_category_name,seller_id 有什么差异？
+小不懂：<strong>我大概想到了，让我敲代码看看啊</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">distinct</span> seller_id 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-distinct-2.png" alt="Hugo使用图片资源"></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">distinct</span> product_category_name, seller_id 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-distinct-3.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哈哈，果然和我想的一样。distinct product_category_name,seller_id 是对品类名称+卖家id这个整体（2列）起作用的，而单独 distinct product_category_name 是对品类名这一列起作用的。
+于雷也笑了：不错啊，进步很快。会自己用数据来验证猜想了，这是一项很重要的能力。<strong>做分析的过程中，我们在不断地提出假设、收集数据、验证猜想</strong>。之后你会越来越熟悉这个工作流程的。
+小不懂：谢谢于雷哥，都是老师教的好。</p>
+<p> </p>
+<p>于雷：今天最后一个技能，distinct 去重后的数据，可以和count等函数结合起来：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> product_category_name,seller_id) <span style="color:#66d9ef">as</span> seller_category_num 
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/5-count-distinct.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：666。好可以直接嵌套啊，有点神奇，像俄罗斯套娃。这个好厉害。</p>
+<p>于雷：行，自己玩去吧。用之前的表，和这次的数据，看看能鼓捣点什么出来。可以验证一下主键没有重复值的猜想，找几个品类，或者卖家，看看它们的数据特点。</p>
+<p>小不懂：好。今天学到好多东西，我去看看能做点什么分析出来~</p>
+<p> </p>
+<p> </p>
+<p> </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

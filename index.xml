@@ -8,7 +8,7 @@
     <language>zh-cn</language>
     <lastBuildDate>Sun, 31 Jan 2021 08:36:54 -0700</lastBuildDate><atom:link href="https://shuiseeery.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>初入江湖——数据分析师做什么</title>
+      <title>1.  初入江湖——数据分析师做什么</title>
       <link>https://shuiseeery.github.io/post/1-firstday/</link>
       <pubDate>Sun, 31 Jan 2021 08:36:54 -0700</pubDate>
       
@@ -70,7 +70,7 @@
     </item>
     
     <item>
-      <title>数据背后的故事——数据表</title>
+      <title>2.  数据背后的故事——数据表</title>
       <link>https://shuiseeery.github.io/post/2-table/</link>
       <pubDate>Sat, 30 Jan 2021 08:36:54 -0700</pubDate>
       
@@ -81,7 +81,7 @@
     </item>
     
     <item>
-      <title>存放数据的地方——数据库</title>
+      <title>3.  存放数据的地方——数据库</title>
       <link>https://shuiseeery.github.io/post/3-0-database/</link>
       <pubDate>Fri, 29 Jan 2021 08:36:54 -0700</pubDate>
       
@@ -114,7 +114,7 @@ Sublime text 可以从官网下载安装程序，如果网络卡，可以找其�
     </item>
     
     <item>
-      <title>导入数据表</title>
+      <title>3-1.  导入数据表</title>
       <link>https://shuiseeery.github.io/post/3-1-upload-data/</link>
       <pubDate>Thu, 28 Jan 2021 08:36:54 -0700</pubDate>
       
@@ -146,7 +146,7 @@ mysql -uroot -pFly2sky supermarket &amp;lt; D:\database\supermarket.sql 输入�
     </item>
     
     <item>
-      <title>找到需要的信息——select</title>
+      <title>4.  找到需要的信息——select</title>
       <link>https://shuiseeery.github.io/post/4-select/</link>
       <pubDate>Wed, 27 Jan 2021 08:36:54 -0700</pubDate>
       
@@ -177,6 +177,39 @@ select seller_id, city from seller_info limit 10; 小不懂：哦哦，类似于
 小不懂：是不是加一个城市=北京的条件，像excel里面的筛选一样？
 于雷：对。
 select * from seller_info where city=&amp;#39;北京&amp;#39; limit 10; 你观察以下，里面有哪些特别的地方呢？</description>
+    </item>
+    
+    <item>
+      <title>5.  用统计眼光看数据表——聚合函数</title>
+      <link>https://shuiseeery.github.io/post/5-sumcount/</link>
+      <pubDate>Tue, 26 Jan 2021 08:36:54 -0700</pubDate>
+      
+      <guid>https://shuiseeery.github.io/post/5-sumcount/</guid>
+      <description>第二天早上，小不懂来找于雷交练习作业：陕西99个、湖北145个。
+计算代码是：
+select * from seller_info where province=&amp;#39;陕西&amp;#39;; select * from seller_info where province=&amp;#39;湖北&amp;#39;; 从数据库最后的汇总行数中，读出卖家个数。
+ 于雷：不错。不过如果湖北有10万个卖家，数据库把所有信息滚动展示出来，会花费很长时间。还有一个更好的办法。
+小不懂：是什么办法呢？能直接看到结果肯定更好。
+于雷：SQL有个函数专门用来计算指定列的行数：
+select count(seller_id) from seller_info where province=&amp;#39;陕西&amp;#39;; 小不懂：哇！这个好~~~
+ 于雷：你自己想一下，想知道我们总共有多少卖家，需要怎么计算？
+小不懂：嗯，应该是从表里直接count卖家id：
+select count(seller_id) from seller_info; 她说着，在电脑上敲下代码：结果立刻出来了：
+于雷赞许地点点头：不错。
+ 现在我们可以取出北京地区所有的卖家。但这不是我们需要的。我们想找北京地区所有的婴儿用品卖家。
+小不懂：我知道。我们还需要卖家售卖商品的信息。我们有这样的数据表吗？
+于雷：有。seller_product_summary这张表，你先自己探索下看看，十五分钟后告诉我，有什么收获。
+ 小不懂回到工位，想起前几天学的，探索表信息的方法，先用
+desc seller_product_summary; 查看表结构：
+哦，卖家id 和 商品分类共同构成了主键，有趣。也就是说，卖家id可能有重复值，商品分类也可能有重复值，但卖家id 和商品分类 结合起来，是唯一的。
+订单数和订单价值是，某卖家在某一个品类下的订单数和订单价值。
+ 再看看数据具体是什么样子：
+select * from seller_product_summary limit 10; 果然，卖家id有重复的，一个卖家可能会卖多个品类的商品，比如红框里那位卖家，卖园艺工材。
+另外有些商品品类信息是空值。
+初步看，订单数和订单价值差异比较大，订单数从1到几百；订单价值从98到2万多。
+ 看看一共有多少行数据：
+select count(seller_id) from seller_product_summary ; 6千多行，还挺多的。
+下一步，针对我们关注的卖家id 和品类，多取一点数出来看看：</description>
     </item>
     
   </channel>
