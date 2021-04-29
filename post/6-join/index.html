@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>6.  整合多张表的信息——join &middot; 有所思</title>
+  <meta name="description" content="把2张表连起来，能得到更多信息，像Vlookup那样  " />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>6.  整合多张表的信息——join</h1>
+  <time datetime=2021-01-25T08:36:54-0700 class="post-date">Mon, Jan 25, 2021</time>
+  <p> </p>
+<p>小不懂熟悉了count、sum、max、min、avg、distinct的用法后，想了想，自己已经找到所有北京的卖家，也能找到所有婴儿用品卖家，只差把这两个信息结合起来，离结果胜利在望。</p>
+<p>她去找于雷：我该<strong>怎么把北京的卖家，和婴儿用品的卖家信息组合起来呢</strong>？结合起来，就能找到所有北京婴儿用品的卖家。</p>
+<p>于雷反问：你有什么想法呢？</p>
+<p> </p>
+<p>小不懂：我有一个笨办法，<strong>把所有北京的卖家id拿出来，去婴儿用品卖家表里挨个查</strong>，能找到的，就是北京婴儿用品卖家。这个方法可以做，只是麻烦一些。</p>
+<p>于雷：哈哈哈，你说得对，这是一个吭哧吭哧的体力活，要花很长时间。sql里有个功能，可以帮你完成这个复杂的过程，你只需要告诉数据库，需要在哪两张表中，按什么字段来查找信息。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> 
+(
+<span style="color:#66d9ef">select</span> seller_id,city <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;北京&#39;</span>
+)beijing_seller 
+<span style="color:#66d9ef">join</span> 
+(
+<span style="color:#66d9ef">select</span> seller_id, product_category_name <span style="color:#66d9ef">from</span> seller_product_summary <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span> 
+)baby_product_seller
+<span style="color:#66d9ef">on</span> beijing_seller.seller_id <span style="color:#f92672">=</span> baby_product_seller.seller_id
+;
+</code></pre></div><p><img src="/anay_pic/sql_pic/6-1-join.png" alt="Hugo使用图片资源"></p>
+<p>于雷：你看看这段代码。</p>
+<p>小不懂：前面一张表是北京卖家id，后面一张是婴儿用品卖家信息。两张表用join一下，后面的on 是在告诉数据库，两张表里seller_id 相等？</p>
+<p>于雷：答对了一半。<strong>join 和 on 是联合起来使用的，完整的功能是，在两张表卖家id相等的那些行，把两张表粘贴起来，像用胶水拼贴一样</strong>。</p>
+<p>小不懂：嗯，最终查询出的结果里，既有前一张表的城市信息，也有品类表里的品类信息。一共只有7个卖家符合条件啊。</p>
+<p> </p>
+<p>于雷：直接看数据库的结果可能有些抽象，我找个简单的表给你演示一下</p>
+<p><img src="/anay_pic/sql_pic/6-2-case.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：噢，我明白了。<strong>找到两张表里相等的卖家id，把它们的信息组合起来，做成一张新的表</strong>。</p>
+<p> </p>
+<p>于雷：嗯。你再看这个呢？</p>
+<p><img src="/anay_pic/sql_pic/6-3-case1vn.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哎，品类信息表里王二出现了2次， 王二既卖婴儿用品也卖家具。所以在join后的结果里，王二应该也有2条记录？</p>
+<p>于雷：对。这种情况我们称为<strong>一对多关系</strong>，会得到下面的结果。</p>
+<p><img src="/anay_pic/sql_pic/6-4-case1vn.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：嗯嗯。这还是和主键有关。卖家品类信息表里，卖家id+品类信息一起构成了主键。重复出现的王二会和城市表的王二逐个匹配。</p>
+<p> </p>
+<p>于雷：对。你再看这个呢？</p>
+<p><img src="/anay_pic/sql_pic/6-5-case1vn_2.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哎，品类信息表第二个王二的记录也是婴儿用品。这张表没有主键。</p>
+<p>于雷：在很偶尔的情况下，会存在一些没有主键的表。你看现在两张表关联后的结果是什么呢？</p>
+<p>小不懂：品类信息表的第二个王二依然会和卖家城市表匹配，结果表里会有重复。</p>
+<p>于雷：没错。是这样。</p>
+<p><img src="/anay_pic/sql_pic/6-6-case1vn_2.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>于雷：接下来看最复杂的情况，<strong>多对多关系</strong>。</p>
+<p><img src="/anay_pic/sql_pic/6-7-NvsN.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：城市信息表里的2个王二，分别和品类信息表里的2个王二关联，结果有2*2共4条一样的记录。</p>
+<p>于雷：嗯，可以直接报答案了，不错不错。</p>
+<p><img src="/anay_pic/sql_pic/6-8-NvsN.png" alt="Hugo使用图片资源"></p>
+<p>小不懂挠挠头笑了。</p>
+<p> </p>
+<p>于雷：画表关系图是最基本，也是最好用的办法。<strong>遇到非常复杂的数据表关联</strong>，   <strong>理不清关系时，抽几条数据，自己画一下关系图，一目了然，清清楚楚</strong>。我希望你能学会通用的方法，自己掌握解决问题的工具。</p>
+<p>小不懂：嗯，谢谢于雷哥。</p>
+<p>于雷：最后还有2个稍微复杂一点的用法。</p>
+<p><img src="/anay_pic/sql_pic/6-9-left.png" alt="Hugo使用图片资源"></p>
+<p>于雷：这是left join， 会把前面一张表的所有信息保留下来。</p>
+<p>小不懂：噢噢，刘明不在品类信息表里，但最终的查询结果依然把刘明保留下来了。</p>
+<p> </p>
+<p>于雷：嗯。还有个类似的操作。</p>
+<p><img src="/anay_pic/sql_pic/6-10-right.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：<strong>right join和left join 刚刚反过来</strong>。品类信息表里的行都保留下来了。</p>
+<p>于雷：嗯。如果我们让品类信息表left join 城市信息表，得到的结果是不是和上面一样？</p>
+<p>小不懂：是的是的。如果只是join，那么前后2张表调换位置，结果是一样的。left join 和 right join 调换位置后，结果不一样。要想结果一样，两张表调顺序后，left join 和right join 要互换位置。</p>
+<p> </p>
+<p>于雷：嗯。我们再来看，最开始的sql代码。现在是不是好理解很多？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> 
+(
+<span style="color:#66d9ef">select</span> seller_id,city <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;北京&#39;</span>
+)beijing_seller 
+<span style="color:#66d9ef">join</span> 
+(
+<span style="color:#66d9ef">select</span> seller_id, product_category_name <span style="color:#66d9ef">from</span> seller_product_summary <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span> 
+)baby_product_seller
+<span style="color:#66d9ef">on</span> beijing_seller.seller_id <span style="color:#f92672">=</span> baby_product_seller.seller_id
+;
+</code></pre></div><p>小不懂：嗯嗯。这段代码用括号括起来，后面写着beijing_seller 是为什么呢？是类似于min(order_num) as min_order 一样，起个别名吗？</p>
+<p>(
+select seller_id,city from seller_info where province=&lsquo;北京&rsquo;
+)beijing_seller</p>
+<p>于雷：对。括号括起来表示我们把从seller_info中所有城市等于北京的行，作为一张新的数据表，beijing_seller 是它的名字。<strong>如果不起名字，数据库不知道这是一张新的表</strong>。</p>
+<p>小不懂：那后面两张表关联时，on beijing_seller.seller_id = baby_product_seller.seller_id， beijing.seller_id 是在告诉服务器，从beijing_seller那张表里，取seller_id吗？</p>
+<p>于雷：是的。beijing_seller 和  baby_product_seller 表里都有seller_id,如果不讲清楚是哪张表里的，服务器分辨不了，就会出错。</p>
+<p>小不懂点点头：嗯。像以前班上有2个李华，老师按个子高矮叫他们大李华、小李华。只说李华确实分不清是哪一个。</p>
+<p>于雷：哈哈。我们人类也会犯这样的错，服务器分不清也情有可原，哈哈哈。</p>
+<p> </p>
+<p>小不懂：嗯，我们已经可以取出来北京的婴儿用品卖家了。还差个“深受消费者欢迎”的条件。</p>
+<p>于雷：你觉得，&ldquo;深受消费者欢迎&rdquo;，应该怎么判断呢？</p>
+<p>小不懂：深受欢迎，应该大家买的比较多。看这些卖家的订单量和订单金额？这个数据我们有，我取出来看看。</p>
+<p>她用刚刚学到的join的知识，敲代码取订单量、订单金额出来。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	beijing_seller.seller_id,
+	beijing_seller.city, 
+	baby_product_seller.product_category_name, 
+	baby_product_seller.order_num, 
+	baby_product_seller.order_values   
+<span style="color:#66d9ef">from</span> 
+    (
+    <span style="color:#66d9ef">select</span> seller_id,city <span style="color:#66d9ef">from</span> seller_info <span style="color:#66d9ef">where</span> province<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;北京&#39;</span>
+    )beijing_seller 
+<span style="color:#66d9ef">join</span> 
+    (
+    <span style="color:#66d9ef">select</span> 
+        seller_id, 
+        product_category_name,
+        order_num, 
+        order_values 
+    <span style="color:#66d9ef">from</span> seller_product_summary 
+    <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span> 
+    )baby_product_seller
+<span style="color:#66d9ef">on</span> beijing_seller.seller_id <span style="color:#f92672">=</span> baby_product_seller.seller_id
+;
+</code></pre></div><p><img src="/anay_pic/sql_pic/6-11-order-values.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：有一个卖家特别受欢迎，他有21个订单。其余有2个卖家比较受欢迎，分别有3个订单；余下的卖家只有1、2个订单。</p>
+<p>于雷：所以，你觉得找哪几个卖家比较好呢？</p>
+<p>小不懂：销量前3名的卖家。</p>
+<p>于雷：好。那我们把这个结果反馈给运营同事，看看他怎么说。</p>
+<p> </p>
+<p>在等消息回复时，于雷告诉小不懂：刚刚你把深受消费者欢迎，解读为订单量高这个过程，是<strong>把人类能理解的业务语言，翻译成数据的过程</strong>。这是我们做分析时最重要的一环。</p>
+<p>小不懂懵懂地点头，觉得做分析好像也没那么可怕。</p>
+<p>不一会儿，运营反馈对结果很满意，他会采用这三个卖家来做活动。小不懂很开心，既开心学到新技能，也开心能帮到这位同事。</p>
+<p> </p>
+<p>这次学到了好多新东西，小不懂暗暗决定，要找上海、南京的卖家出来，看看这两个城市婴儿用品、家具、美妆这几个品类的卖家数据，来练习新学到的join、left  join、right join。</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
