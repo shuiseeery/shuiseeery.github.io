@@ -248,5 +248,28 @@ select * from ( select seller_id,city from seller_info where province=&amp;#39;�
 于雷：这是left join， 会把前面一张表的所有信息保留下来。</description>
     </item>
     
+    <item>
+      <title>7.  分类求每种产品的售卖情况——group by</title>
+      <link>https://shuiseeery.github.io/post/7-groupby/</link>
+      <pubDate>Sun, 24 Jan 2021 08:36:54 -0700</pubDate>
+      
+      <guid>https://shuiseeery.github.io/post/7-groupby/</guid>
+      <description>这天，有个运营丹霞来找小不懂和于雷。丹霞说，她在制定下一个季度各个品类的销售目标，需要根据当前各品类的销售金额，来判断，给每个品类投入多少预算。于雷接下这个需求。他问小不懂有什么想法。
+小不懂：我们上次用到的卖家品类信息表里，有各个卖家不同品类的订单量，和订单金额。从这张表里可以加工得到每个品类的销售金额。
+于雷：好，你找几个品类试试。
+ 小不懂想起之前看到美妆、手机这两个品类，再加上婴儿用品，一起看看它们的销售金额。
+select sum(order_values) as category_values from seller_product_summary where product_category_name=&amp;#39;婴儿用品&amp;#39;; select sum(order_values) as category_values from seller_product_summary where product_category_name=&amp;#39;美妆&amp;#39;; select sum(order_values) as category_values from seller_product_summary where product_category_name=&amp;#39;手机&amp;#39;; 噢，婴儿用品接近42万，美妆125万，手机32万。这样可以算出来哎。
+ 她又想，那一共有多少个品类需要计算呢？用 distinct 去重后，再count计数就可以知道。
+select count(distinct product_category_name) as category_num from seller_product_summary; 啊。。。一共有72个品类啊。那每个都敲一遍，得花好长时间。有没有简单的办法呢？
+ 小不懂找于雷帮忙，问：于雷哥，我从表里用where筛选美妆品类，再加总订单金额，这样可以算出美妆品类一共有125万金额。类似地，对每个品类都这么算，可以求出每个品类的金额。不过有个问题，我们有72个品类，每个品类算一遍，实在太慢，效率很低。能怎么改进呢？
+于雷：哈哈哈。知道通过学习来提高效率，不错不错。用品类名称分组后，再分别对每个品类求和，就能一次得到你想要的结果。
+比如，下面：
+select product_category_name, sum(order_values) as order_values from seller_product_summary group by product_category_name; 小不懂：哇。真的可以一次性算出来啊。好棒。
+于雷：哈哈哈。科技的进步是懒人推动的。用group by分组后，可以对每个分组结果统计多种信息。比如max、min、等等。你自己试试。
+ 小不懂：好。我想想啊，group by 实际相当于把数据表，按照品类名称分成好多张小表，每张表里放着这个品类所有的数据。比如婴儿用品里面，是所有婴儿用品卖家的卖家id、订单量、和订单金额。然后对每张品类表求和， 每张表得到一个数字，把求和结果和品类名称一起组合成一张新的表输出出来。是这样理解吗？
+于雷：对。sql的核心是，把数据表当作对象，对数据表做不同的操作。你回忆一下，sql的语法和其他程序语言，比如C、Python、R之类不一样。不是从上到下按顺序起作用的。拿最简单的代码来看：
+select seller_id, product_category_name from product_category_name limit 10; 它不是先筛选卖家id、品类，而是先读from product_category_name， 选定卖家品类信息表，再做筛选两列的操作，最后限制结果limit 10行。</description>
+    </item>
+    
   </channel>
 </rss>

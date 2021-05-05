@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>7.  分类求每种产品的售卖情况——group by &middot; 有所思</title>
+  <meta name="description" content="物以类聚，分类观察很有必要" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>7.  分类求每种产品的售卖情况——group by</h1>
+  <time datetime=2021-01-24T08:36:54-0700 class="post-date">Sun, Jan 24, 2021</time>
+  <p> </p>
+<p>这天，有个运营丹霞来找小不懂和于雷。丹霞说，她在制定下一个季度各个品类的销售目标，<strong>需要根据当前各品类的销售金额，来判断，给每个品类投入多少预算</strong>。于雷接下这个需求。他问小不懂有什么想法。</p>
+<p>小不懂：我们上次用到的卖家品类信息表里，有各个卖家不同品类的订单量，和订单金额。从这张表里可以加工得到每个品类的销售金额。</p>
+<p>于雷：好，你找几个品类试试。</p>
+<p> </p>
+<p>小不懂想起之前看到美妆、手机这两个品类，再加上婴儿用品，一起看看它们的销售金额。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#66d9ef">sum</span>(order_values) <span style="color:#66d9ef">as</span> category_values <span style="color:#66d9ef">from</span> seller_product_summary <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;婴儿用品&#39;</span>;
+<span style="color:#66d9ef">select</span> <span style="color:#66d9ef">sum</span>(order_values) <span style="color:#66d9ef">as</span> category_values <span style="color:#66d9ef">from</span> seller_product_summary <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;美妆&#39;</span>;
+<span style="color:#66d9ef">select</span> <span style="color:#66d9ef">sum</span>(order_values) <span style="color:#66d9ef">as</span> category_values <span style="color:#66d9ef">from</span> seller_product_summary <span style="color:#66d9ef">where</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;手机&#39;</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-1-list.png" alt="Hugo使用图片资源"></p>
+<p>噢，婴儿用品接近42万，美妆125万，手机32万。这样可以算出来哎。</p>
+<p> </p>
+<p>她又想，那一共有多少个品类需要计算呢？用 distinct 去重后，再count计数就可以知道。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> product_category_name) <span style="color:#66d9ef">as</span> category_num <span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-2-totalnum.png" alt="Hugo使用图片资源"></p>
+<p>啊。。。一共有72个品类啊。那每个都敲一遍，得花好长时间。有没有简单的办法呢？</p>
+<p> </p>
+<p>小不懂找于雷帮忙，问：于雷哥，我从表里用where筛选美妆品类，再加总订单金额，这样可以算出美妆品类一共有125万金额。类似地，对每个品类都这么算，可以求出每个品类的金额。不过有个问题，我们有72个品类，每个品类算一遍，实在太慢，效率很低。能怎么改进呢？</p>
+<p>于雷：哈哈哈。知道<strong>通过学习来提高效率</strong>，不错不错。用品类名称分组后，再分别对每个品类求和，就能一次得到你想要的结果。</p>
+<p>比如，下面：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	product_category_name, 
+	<span style="color:#66d9ef">sum</span>(order_values) <span style="color:#66d9ef">as</span> order_values 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name;
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-3-groupby.png" alt="Hugo使用图片资源"></p>
+<p>小不懂：哇。真的可以一次性算出来啊。好棒。</p>
+<p>于雷：哈哈哈。<strong>科技的进步是懒人推动的</strong>。用group by分组后，可以对每个分组结果统计多种信息。比如max、min、等等。你自己试试。</p>
+<p> </p>
+<p>小不懂：好。我想想啊，group by 实际相当于把数据表，按照品类名称分成好多张小表，每张表里放着这个品类所有的数据。比如婴儿用品里面，是所有婴儿用品卖家的卖家id、订单量、和订单金额。然后对每张品类表求和， 每张表得到一个数字，把求和结果和品类名称一起组合成一张新的表输出出来。是这样理解吗？</p>
+<p>于雷：对。<strong>sql的核心是，把数据表当作对象，对数据表做不同的操作</strong>。你回忆一下，<strong>sql的语法和其他程序语言，比如C、Python、R之类不一样。不是从上到下按顺序起作用的</strong>。拿最简单的代码来看：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	seller_id, 
+	product_category_name
+<span style="color:#66d9ef">from</span> product_category_name
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p>它不是先筛选卖家id、品类，而是先读from product_category_name， 选定卖家品类信息表，再做筛选两列的操作，最后限制结果limit 10行。</p>
+<p>小不懂：是的是的。<strong>所有的操作，都是以数据表为核心。</strong></p>
+<p>于雷点点头，让小不懂试着用group by 和 max、count 等函数结合起来使用。</p>
+<p> </p>
+<p>小不懂想知道，每个品类有多少卖家；卖家最大的订单量、订单金额分别是多少；他们的平均水平怎么样。想好后，她敲下了代码，敲的时候，一边想着，实际首先指定数据表，再按品类分组 group by，然后分组统计，最后整合输出结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	product_category_name,
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> seller_num,
+	<span style="color:#66d9ef">max</span>(order_values) <span style="color:#66d9ef">as</span> max_value,
+	<span style="color:#66d9ef">min</span>(order_values) <span style="color:#66d9ef">as</span> min_value,
+	<span style="color:#66d9ef">max</span>(order_num) <span style="color:#66d9ef">as</span> max_order,
+	<span style="color:#66d9ef">min</span>(order_num) <span style="color:#66d9ef">as</span> min_order,
+	<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_value,
+	<span style="color:#66d9ef">avg</span>(order_num) <span style="color:#66d9ef">as</span> avg_order
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name;
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-4-group-sum.png" alt="Hugo使用图片资源"></p>
+<p>小不懂看了看结果，不同品类卖家数量、销售金额差异还蛮大的。美妆、运动装备的卖家数量最多，平均销售金额床单布艺是这几个里最高的。有意思。</p>
+<p> </p>
+<p>不过这只是前几行的结果，这72个品类也不能挨个看过去。啊哈，忽然，她感觉这似曾相识。前几天观察卖家各品类销售额的时候，也是这样的。也就是说，对这张有72的，各品类信息结果表，依然可以观察最大、最小、平均值，得到的结果是不同品类的差异。这太神奇了。</p>
+<p>彷佛打通任督二脉一样，她跑去找于雷：于雷哥，我有个惊奇的发现。按品类分组后，统计品类卖家订单信息结果，比如卖家数、卖家平均订单数。对这张结果表，依然可以继续做统计，得到描述各个品类信息的结果，好棒啊。感觉像，从一个角度处理后的数据，还可以再处理一次。</p>
+<p>于雷哈哈地笑了，他记起自己当年也是这样一点点摸索到sql的门道。他点点头：嗯。<strong>做分析感觉像从废铁里炼钢一样，先加工一次，还可以继续再加工，直到练成精钢。sql是炼钢的工具。</strong></p>
+<p>小不懂想了想，这个比喻好精妙。确实，<strong>每处理一次数据，数据规模在肉眼可见地</strong> <strong>缩小，但同时得到了更多人能理解的信息</strong>。她敬佩地点点头。</p>
+<p>于雷：我又想起一句话，我们不生产数据，我们只massage数据。慢慢接触多了，你会明白的，哈哈。</p>
+<p> </p>
+<p>小不懂想起要问于雷的问题：于雷哥，那我该怎么操作，来把这个结果当作新的表呢？</p>
+<p>问完，她想起来，上次接触过。她拍拍额头，问：啊，我想起来了。学join 的时候，把这段代码用括号括起来，再加一个新的表名称，是不是就可以了？</p>
+<p>于雷很满意地笑了：我刚刚还在等，看你能不能自己想起来。你去试试吧。</p>
+<p> </p>
+<p>小不懂飞快地敲好代码，让数据库执行。她很期待结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">max</span>(seller_num) <span style="color:#66d9ef">as</span> max_seller_num,
+	<span style="color:#66d9ef">avg</span>(seller_num) <span style="color:#66d9ef">as</span> avg_seller_num,
+	<span style="color:#66d9ef">max</span>(avg_value) <span style="color:#66d9ef">as</span> max_category_value,
+	<span style="color:#66d9ef">avg</span>(avg_value) <span style="color:#66d9ef">as</span> avg_category_value
+<span style="color:#66d9ef">from</span> 	
+	(
+	<span style="color:#66d9ef">select</span>
+		product_category_name,
+		<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> seller_num,
+		<span style="color:#66d9ef">max</span>(order_values) <span style="color:#66d9ef">as</span> max_value,
+		<span style="color:#66d9ef">min</span>(order_values) <span style="color:#66d9ef">as</span> min_value,
+		<span style="color:#66d9ef">max</span>(order_num) <span style="color:#66d9ef">as</span> max_order,
+		<span style="color:#66d9ef">min</span>(order_num) <span style="color:#66d9ef">as</span> min_order,
+		<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_value,
+		<span style="color:#66d9ef">avg</span>(order_num) <span style="color:#66d9ef">as</span> avg_order
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+ ;	
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-5-subquery.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>哦，品类卖家数最多的是490，这是什么品类呢？我来看看。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span>
+		product_category_name,
+		<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> seller_num,
+		<span style="color:#66d9ef">max</span>(order_values) <span style="color:#66d9ef">as</span> max_value,
+		<span style="color:#66d9ef">min</span>(order_values) <span style="color:#66d9ef">as</span> min_value,
+		<span style="color:#66d9ef">max</span>(order_num) <span style="color:#66d9ef">as</span> max_order,
+		<span style="color:#66d9ef">min</span>(order_num) <span style="color:#66d9ef">as</span> min_order,
+		<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_value,
+		<span style="color:#66d9ef">avg</span>(order_num) <span style="color:#66d9ef">as</span> avg_order
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+<span style="color:#66d9ef">where</span> seller_num<span style="color:#f92672">=</span><span style="color:#ae81ff">490</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/7-6-where.png" alt="Hugo使用图片资源"></p>
+<p>她决定继续看看哪个品类的卖家平均销售金额最高，来练习今天新学的技能，锻炼自己的炼钢能力，哈哈哈。 </p>
+<p> </p>
+<p>亲爱的读者，你学会了吗？</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
