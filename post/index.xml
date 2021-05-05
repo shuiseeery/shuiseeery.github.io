@@ -271,5 +271,28 @@ select product_category_name, sum(order_values) as order_values from seller_prod
 select seller_id, product_category_name from product_category_name limit 10; 它不是先筛选卖家id、品类，而是先读from product_category_name， 选定卖家品类信息表，再做筛选两列的操作，最后限制结果limit 10行。</description>
     </item>
     
+    <item>
+      <title>8.  高级用法——select 进阶</title>
+      <link>https://shuiseeery.github.io/post/8-where/</link>
+      <pubDate>Sat, 23 Jan 2021 08:36:54 -0700</pubDate>
+      
+      <guid>https://shuiseeery.github.io/post/8-where/</guid>
+      <description>早上小不懂刚去公司，于雷喊她过来，说有好事儿等着她。
+于雷：昨天各品类的销售额数据，丹霞妹子很满意。看起来你代码基本功学得还可以，现在有一些代码你来自学一下。
+小不懂：啊？好的。我试试。
+于雷：很简单。我把代码给你，你研究一会儿，告诉我这些代码是什么意思。其实很简单，你把它们提交到数据库里，看看结果，想一想代码做了什么操作，一会儿就搞透了。
+小不懂：唔好的。
+ 小不懂回去看了看代码，大概知道于雷让她学的内容了。
+她打开电脑，把代码逐一敲进去，验证自己的想法：
+select count(1) as num, max(order_values) as max_value, avg(order_values) as avg_order_value, max(order_values) - avg(order_values) as value_gap, max(order_values) + min(order_values) as value_1, (max(order_values) + min(order_values) )/2 as value_2 from seller_product_summary; 从卖家品类信息表里，先计算一共有多少条记录，再求销售额的最大值和平均值，然后用最大值减去平均值看差异，再把最大值、最小值相加，并除以2。
+这段代码主要在演示对某一数值做加减法、除法怎么做。
+果然如此。value_gap是最大值和平均值的差，value_2是最大值和最小值的平均值。
+ 下面这段是在讲数值乘法。
+select count(seller_id) as num, sum(order_values) as sum_values, avg(order_values) as avg_order_value, avg(order_values)*count(seller_id) as sum_values2 from seller_product_summary; 金额平均值乘以个数，等于金额总和。
+ 小不懂好奇，对一列数据做加减乘除，是不是也是同样的计算方式呢？
+她想自己试试看，编了下面的代码，敲进去：
+select order_num, (order_num - 10) as num_1, (order_num + 10) as num_2, (order_num * 10) as num_3, (order_num / 10) as num_4 from seller_product_summary limit 5; 哇哦，是的呢。用+、-、*、/ 运算符号，可以直接对一列数据做加减乘除法,很简单也很方便。</description>
+    </item>
+    
   </channel>
 </rss>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>8.  高级用法——select 进阶 &middot; 有所思</title>
+  <meta name="description" content="加减乘除运算、比较大小、组合多个判断条件" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>8.  高级用法——select 进阶</h1>
+  <time datetime=2021-01-23T08:36:54-0700 class="post-date">Sat, Jan 23, 2021</time>
+  <p>早上小不懂刚去公司，于雷喊她过来，说有好事儿等着她。</p>
+<p>于雷：昨天各品类的销售额数据，丹霞妹子很满意。看起来你代码基本功学得还可以，<strong>现在有一些代码你来自学一下</strong>。</p>
+<p>小不懂：啊？好的。我试试。</p>
+<p>于雷：很简单。我把代码给你，你研究一会儿，告诉我这些代码是什么意思。其实很简单，<strong>你把它们提交到数据库里，看看结果，想一想代码做了什么操作，一会儿就搞透了</strong>。</p>
+<p>小不懂：唔好的。</p>
+<p> </p>
+<p>小不懂回去看了看代码，大概知道于雷让她学的内容了。</p>
+<p>她打开电脑，把代码逐一敲进去，验证自己的想法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> num,
+	<span style="color:#66d9ef">max</span>(order_values) <span style="color:#66d9ef">as</span> max_value,
+	<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_order_value,
+	<span style="color:#66d9ef">max</span>(order_values) <span style="color:#f92672">-</span> <span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> value_gap,
+	<span style="color:#66d9ef">max</span>(order_values) <span style="color:#f92672">+</span> <span style="color:#66d9ef">min</span>(order_values) <span style="color:#66d9ef">as</span> value_1,
+	(<span style="color:#66d9ef">max</span>(order_values) <span style="color:#f92672">+</span> <span style="color:#66d9ef">min</span>(order_values) )<span style="color:#f92672">/</span><span style="color:#ae81ff">2</span> <span style="color:#66d9ef">as</span> value_2
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p>从卖家品类信息表里，先计算一共有多少条记录，再求销售额的最大值和平均值，然后用最大值减去平均值看差异，再把最大值、最小值相加，并除以2。</p>
+<p>这段代码主要在演示<strong>对某一数值做加减法、除法怎么做</strong>。</p>
+<p><img src="/anay_pic/sql_pic/8-1-add.png" alt="Hugo使用图片资源"></p>
+<p>果然如此。value_gap是最大值和平均值的差，value_2是最大值和最小值的平均值。</p>
+<p> </p>
+<p>下面这段是在讲<strong>数值乘法</strong>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(seller_id) <span style="color:#66d9ef">as</span> num,
+	<span style="color:#66d9ef">sum</span>(order_values) <span style="color:#66d9ef">as</span> sum_values,
+	<span style="color:#66d9ef">avg</span>(order_values) <span style="color:#66d9ef">as</span> avg_order_value,
+	<span style="color:#66d9ef">avg</span>(order_values)<span style="color:#f92672">*</span><span style="color:#66d9ef">count</span>(seller_id) <span style="color:#66d9ef">as</span> sum_values2
+<span style="color:#66d9ef">from</span> seller_product_summary;
+</code></pre></div><p>金额平均值乘以个数，等于金额总和。</p>
+<p><img src="/anay_pic/sql_pic/8-2-plus.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>小不懂好奇，对一列数据做加减乘除，是不是也是同样的计算方式呢？</p>
+<p>她想自己试试看，编了下面的代码，敲进去：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	order_num,
+	(order_num <span style="color:#f92672">-</span> <span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> num_1,
+	(order_num <span style="color:#f92672">+</span> <span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> num_2,
+	(order_num <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> num_3,
+	(order_num <span style="color:#f92672">/</span> <span style="color:#ae81ff">10</span>) <span style="color:#66d9ef">as</span> num_4
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">5</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-3-add-plus.png" alt="Hugo使用图片资源"></p>
+<p>哇哦，是的呢。<strong>用+、-、*、/ 运算符号，可以直接对一列数据做加减乘除法</strong>,很简单也很方便。</p>
+<p> </p>
+<p>她接着看于雷给的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	product_category_name, 
+	seller_id,
+	order_num,
+	order_values,
+	order_values<span style="color:#f92672">/</span>order_num <span style="color:#66d9ef">as</span> avg_value
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">5</span>;
+</code></pre></div><p>这一段在做除法，不过和之前不同的是，用订单金额这列数据，直接除以订单数。</p>
+<p>也就是说，<strong>sql支持对不同列，做加减乘除运算处理</strong>。</p>
+<p><img src="/anay_pic/sql_pic/8-4-column.png" alt="Hugo使用图片资源"></p>
+<p>这段代码，求出了卖家每个品类下，订单的平均值。家具装饰这个店，平均订单金额很低，24元，估计卖的都是便宜装饰品。</p>
+<p>总结一下，<strong>sql里面用+、-、*、/ 运算符号，支持对某一数值（max函数求出的值等）、某一列数据、不同的几列数据，做加减乘除操作</strong>。</p>
+<p> </p>
+<p>小不懂歇了一会儿，伸伸懒腰，继续看后面的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span>
+		product_category_name,
+		<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> seller_num
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+<span style="color:#66d9ef">where</span> seller_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">200</span>;
+</code></pre></div><p>这段是用大于号来筛选有200个以上卖家的品类。</p>
+<p><img src="/anay_pic/sql_pic/8-5-bigger.png" alt="Hugo使用图片资源"></p>
+<p>果然如此，一共有11个品类符合条件。</p>
+<p> </p>
+<p>这段代码筛选在某个品类下，订单数小于5的卖家和品类信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">5</span> 
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-6-less.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>不出所料。接着看下一个：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">=</span><span style="color:#ae81ff">5</span>
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p>这是等于号，在求订单数等于5的记录：</p>
+<p><img src="/anay_pic/sql_pic/8-7-equal.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>下一个看着好玩一些，应该是练习小于等于 这个条件的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#66d9ef">max</span>(order_num) <span style="color:#66d9ef">as</span> max_order
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">5</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-8-less-equal.png" alt="Hugo使用图片资源"></p>
+<p>也就是说，<strong>可以用&gt;、&lt;、=、&gt;=、&lt;=等条件，来筛选符合要求的数据行，进行分析</strong>。和excel里的筛选功能差不多。</p>
+<p> </p>
+<p> </p>
+<p>下一个是大于等于、小于等于一起的，<strong>用and 把2个条件连接起来</strong>：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">5</span> 
+	<span style="color:#66d9ef">and</span> order_values<span style="color:#f92672">&gt;=</span><span style="color:#ae81ff">100</span>
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-9-and.png" alt="Hugo使用图片资源"></p>
+<p>这些卖家是订单数少，但订单金额高，卖的是大件产品。</p>
+<p> </p>
+<p>这段代码也很有意思，<strong>or 表示或者，在2个条件里满足1个就可以</strong>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&gt;=</span><span style="color:#ae81ff">100</span>
+	<span style="color:#66d9ef">or</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">10</span>
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="C:%5CUsers%5Cmachenchen%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210322123536321.png" alt="image-20210322123536321"></p>
+<p>有趣有趣。这些是比较大小、用and、or连接2个条件。</p>
+<p>哦哦，这部分是在讲逻辑判断，<strong>用and 或者 or 来连接不同的筛选条件</strong>。</p>
+<p><strong>需要所有条件都成立时用and ，任何一个条件成立即可用or</strong>。</p>
+<p> </p>
+<p> </p>
+<p>下面的代码在筛选品类类型：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> product_category_name <span style="color:#66d9ef">in</span> (<span style="color:#e6db74">&#39;玩具&#39;</span>,<span style="color:#e6db74">&#39;汽车用品&#39;</span>,<span style="color:#e6db74">&#39;小家电&#39;</span>,<span style="color:#e6db74">&#39;电脑器材&#39;</span>)
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-11-in.png" alt="Hugo使用图片资源"></p>
+<p>只筛选了玩具、电脑器材、小家电、汽车用品这几项，<strong>用in来限制筛选范围</strong>。</p>
+<p>那么如果想查其他的类型，是不是把in后面的条件换一下就可以？小不懂自己敲了一段代码来验证：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	product_category_name,
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> seller_num
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> product_category_name <span style="color:#66d9ef">in</span> (<span style="color:#e6db74">&#39;床单布艺&#39;</span>,<span style="color:#e6db74">&#39;园艺工具&#39;</span>,<span style="color:#e6db74">&#39;小家电&#39;</span>,<span style="color:#e6db74">&#39;电脑器材&#39;</span>,<span style="color:#e6db74">&#39;箱包&#39;</span>,<span style="color:#e6db74">&#39;网红产品&#39;</span>)
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-12-in2.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p> </p>
+<p>最后一条是查找空值的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span>  seller_info <span style="color:#66d9ef">where</span> city <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">null</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/8-13-null.png" alt="Hugo使用图片资源"></p>
+<p>噢，原来空值需要用is null 来判断啊。不是自己以为的等于null。</p>
+<p> </p>
+<p>小不懂又看了一遍所有的代码，确定没有遗漏，开心地去找于雷，给他讲自己对代码的理解。</p>
+<p>于雷点点头，露出满意的神情。“不错，掌握了sql基本的语法规则之后，余下的高级函数可以在实际工作中自学。<strong>在自学时，需要注意，新函数、新工具对什么起作用，是数值、某一列数据、还是整张表</strong>。遇到再复杂的问题，都不用害怕，逐步抽丝剥茧，确定你需要什么工具，在搜索引擎里搜索相应关键词，很快能找到解决办法。”</p>
+<p>小不懂很感谢于雷：“于雷哥，谢谢你这么耐心教我，我现在遇到问题，比以前自信多了。”</p>
+<p>于雷：“哈哈。因为我是个懒人，不想一套东西反复说很多遍。教会你正确的理解思路和应对工具，之后就不怎么需要费工夫了。”</p>
+<p>小不懂也笑了。</p>
+<p> </p>
+<p>今天小不懂学到很多新工具，亲爱的读者，你学会了吗？</p>
+<p>可以试试这个练习：</p>
+<p><em>从product_category_name表中，统计每个品类的订单金额和订单量，找出那些订单金额、订单量都高于平均值的品类</em>。</p>
+<p> </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
