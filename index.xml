@@ -158,7 +158,7 @@ mysql -uroot -pFly2sky supermarket &amp;lt; D:\database\supermarket.sql 输入�
  于雷：首先
 desc seller_info; 这样我们可以看到，数据表的结构是怎样的。你看到了什么信息？
 小不懂：卖家id是主键，里面有省份、城市、邮编等信息。
-于雷：对。seller_info 是数据表的名称，你可以把它换成其他任何数据表。另外，需要注意，结尾要加封号，告诉计算机，这段代码结束了。
+于雷：对。seller_info 是数据表的名称，你可以把它换成其他任何数据表。另外，需要注意，结尾要加分号，告诉计算机，这段代码结束了。
  接下来我们来看表里具体的数据：
 select * from seller_info; 小不懂：哇，屏幕上滚动了好多数据。这是把表里所有的数据都“秀”出来了吗？
 一会儿，屏幕滚动完，显示一共有3095行数据。
@@ -292,6 +292,38 @@ select count(seller_id) as num, sum(order_values) as sum_values, avg(order_value
  小不懂好奇，对一列数据做加减乘除，是不是也是同样的计算方式呢？
 她想自己试试看，编了下面的代码，敲进去：
 select order_num, (order_num - 10) as num_1, (order_num + 10) as num_2, (order_num * 10) as num_3, (order_num / 10) as num_4 from seller_product_summary limit 5; 哇哦，是的呢。用+、-、*、/ 运算符号，可以直接对一列数据做加减乘除法,很简单也很方便。</description>
+    </item>
+    
+    <item>
+      <title>9.  综合练习——做一份日报</title>
+      <link>https://shuiseeery.github.io/post/9-dailyreport/</link>
+      <pubDate>Fri, 22 Jan 2021 08:36:54 -0700</pubDate>
+      
+      <guid>https://shuiseeery.github.io/post/9-dailyreport/</guid>
+      <description>这天是个阳光明媚的日子。小不懂刚去公司，于雷喊她：“来活儿了。”
+小不懂跑过去：“于雷哥，咱要做什么呀？”
+于雷：为了方便运营同学了解经营情况，我们需要做一份日报。
+小不懂：日报？需要每天看的报表？
+于雷：对。**把我们最关注的、重要的经营结果，按天汇总，做成报表，每天可以看到昨天的数据，可以及时发现问题。**你想想，我们最关心哪些数据呢？
+小不懂：嗯，我们是网上超市，那肯定最关心，一天卖了多少货，有多少收入。
+于雷：对。order_info是我们的订单表， order_items是订单商品明细表，这两张表里有足够多的信息，你去试试看。
+ 小不懂回去探索这两张新的表。
+先看看order_info 订单表结构：
+desc order_info; 主键是订单id，其他的信息有客户id、订单状态、购买时间，binggo，这个购买时间是我们关注的日期。余下还有订单确认时间、开始运输时间、运送到客户手里的时间，和订单预计送达时间。这是网购中，订单经过的所有环节。
+那么做日报时，把一天里所有的订单取出来就可以了。
+那接下来看看数据具体存储了什么内容：
+select * from order_info limit 3; 哦，这里时间都是精确到秒的，需要取出日期，等会儿找于雷哥问问。
+ 订单状态，显示已送达，我来看看有没有其他状态：
+select distinct order_status from order_info; 哦，好多种状态：送达、unavailable 不知道是不是商品缺货、shipped 是正在送货？取消、invoiced看不出来是什么，processing还在进行种、订单确认、和创建。
+再看看具体每种状态有多少订单：
+select order_status, count(order_id) as order_num, count(distinct order_id) as order_num_2 from order_info group by order_status; 由于order_id是主键，没有重复值，所以直接count 和去重后count是一样的。
+大多数的订单都是已送达。
+ 接下来看最关心的购买时间，看看购买时间最大、最小值：
+select max(order_purchase_timestamp) as max_time, min(order_purchase_timestamp) as min_time from order_info; 哦，时间跨度从16年9月到18年10月，挺久的。
+ 最后看看表里有多少行数据：
+哦，有9万9千行。
+总结一下，订单表记录了订单从创建、确认、运输、送达等环节的时间信息，和购买用户id。订单状态有送达、运输中等多种状态，主要是送达。表里的信息从16年9月到18年10月，共9万9千行记录。
+ 再看另外一张订单商品明细表，order_items：</description>
     </item>
     
   </channel>

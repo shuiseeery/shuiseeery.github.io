@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>9.  综合练习——做一份日报 &middot; 有所思</title>
+  <meta name="description" content="按天监控核心数据，能及时发现问题" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>9.  综合练习——做一份日报</h1>
+  <time datetime=2021-01-22T08:36:54-0700 class="post-date">Fri, Jan 22, 2021</time>
+  <p> </p>
+<p>这天是个阳光明媚的日子。小不懂刚去公司，于雷喊她：“来活儿了。”</p>
+<p>小不懂跑过去：“于雷哥，咱要做什么呀？”</p>
+<p>于雷：为了方便运营同学了解经营情况，我们需要做一份日报。</p>
+<p>小不懂：日报？需要每天看的报表？</p>
+<p>于雷：对。**把我们最关注的、重要的经营结果，按天汇总，做成报表，每天可以看到昨天的数据，可以及时发现问题。**你想想，我们最关心哪些数据呢？</p>
+<p>小不懂：嗯，我们是网上超市，那肯定最关心，一天卖了多少货，有多少收入。</p>
+<p>于雷：对。order_info是我们的订单表，  order_items是订单商品明细表，这两张表里有足够多的信息，你去试试看。</p>
+<p> </p>
+<p>小不懂回去探索这两张新的表。</p>
+<p>先看看order_info 订单表结构：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">desc</span> order_info;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-1-TableDetails.png" alt="Hugo使用图片资源"></p>
+<p>主键是订单id，其他的信息有客户id、订单状态、购买时间，binggo，这个购买时间是我们关注的日期。余下还有订单确认时间、开始运输时间、运送到客户手里的时间，和订单预计送达时间。这是网购中，订单经过的所有环节。</p>
+<p>那么做日报时，把一天里所有的订单取出来就可以了。</p>
+<p>那接下来看看数据具体存储了什么内容：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> order_info <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">3</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-2-TableDetails2.png" alt="Hugo使用图片资源"></p>
+<p>哦，<strong>这里时间都是精确到秒的，需要取出日期</strong>，等会儿找于雷哥问问。</p>
+<p> </p>
+<p>订单状态，显示已送达，我来看看有没有其他状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#66d9ef">distinct</span> order_status <span style="color:#66d9ef">from</span> order_info;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-3-OrderStatus.png" alt="Hugo使用图片资源"></p>
+<p>哦，好多种状态：送达、unavailable 不知道是不是商品缺货、shipped 是正在送货？取消、invoiced看不出来是什么，processing还在进行种、订单确认、和创建。</p>
+<p>再看看具体每种状态有多少订单：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> order_status, 
+	<span style="color:#66d9ef">count</span>(order_id) <span style="color:#66d9ef">as</span> order_num, 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_id) <span style="color:#66d9ef">as</span> order_num_2
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> order_status;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-4-OrderStatus2.png" alt="Hugo使用图片资源"></p>
+<p>由于order_id是主键，没有重复值，所以直接count 和去重后count是一样的。</p>
+<p>大多数的订单都是已送达。</p>
+<p> </p>
+<p>接下来看最关心的购买时间，看看购买时间最大、最小值：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">max</span>(order_purchase_timestamp) <span style="color:#66d9ef">as</span> max_time, 
+	<span style="color:#66d9ef">min</span>(order_purchase_timestamp) <span style="color:#66d9ef">as</span> min_time 
+<span style="color:#66d9ef">from</span> order_info;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-5-DateType.png" alt="Hugo使用图片资源"></p>
+<p>哦，时间跨度从16年9月到18年10月，挺久的。</p>
+<p> </p>
+<p>最后看看表里有多少行数据：</p>
+<p><img src="/anay_pic/sql_pic/9-6-TotalRows.png" alt="Hugo使用图片资源"></p>
+<p>哦，有9万9千行。</p>
+<p>总结一下，订单表记录了订单从创建、确认、运输、送达等环节的时间信息，和购买用户id。订单状态有送达、运输中等多种状态，主要是送达。表里的信息从16年9月到18年10月，共9万9千行记录。</p>
+<p> </p>
+<p>再看另外一张订单商品明细表，order_items：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">desc</span> order_items;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-7-ItemDetails.png" alt="Hugo使用图片资源"></p>
+<p>哦，主键是订单id+物品id，余下的信息是商品id、卖家id、预订的发货还是到货日期、商品价格、运费（freight_value)。</p>
+<p>那order_items和order_info表关联，就能得到收入信息了，棒！</p>
+<p> </p>
+<p>来看看具体数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> order_items <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">3</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-8-ItemDetails2.png" alt="Hugo使用图片资源"></p>
+<p>唔，果然和自己想的一样。运费看起来还挺贵的。</p>
+<p> </p>
+<p>最后数数表里有多少条数据：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> log_num, 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_id) <span style="color:#66d9ef">as</span> order_num, 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_id, order_item_id) <span style="color:#66d9ef">as</span> num 
+<span style="color:#66d9ef">from</span> order_items;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-9-ItemNum.png" alt="Hugo使用图片资源"></p>
+<p>哦，这里有9万8千条数据，有一部分order_info中的order_id，没有在这张表里啊。这是为什么？</p>
+<p> </p>
+<p>数据摸索得差不多，小不懂心里有底了。把order_info 和 order_items关联，就可以得到每天的订单量 和 订单金额。</p>
+<p>只是有一点小问题需要解决：</p>
+<ul>
+<li>怎么把精确到秒的时间，处理成以天为单位的数据</li>
+<li>对那些在order_info中，但不在order_item的订单，要怎么处理</li>
+</ul>
+<p>小不懂找于雷说了这两个问题。</p>
+<p>于雷：一个一个来解决这些问题。第一个问题，首先“ 2017-09-19 09:45:35” 这样的文本，是特殊的文本格式，我们称为时间格式。你需要一个格式转化工具：date_format 可以完成这个任务。它的用法是DATE_FORMAT(date,format)，date 是你需要处理的列名，format 是想转化的格式。转化为日期可以用'%Y-%m-%d' 这个命令来实现，含义是把年月日分别用连字符拼接，引号括起来表示文本格式。你试试看，如果需要仔细研究，可以看这个文档：https://www.w3school.com.cn/sql/func_date_format.asp</p>
+<p>小不懂：好。我试试。</p>
+<p> </p>
+<p> </p>
+<p>她在数据库里敲：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">from</span> order_info <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p>把购买时间处理成年月日格式，看看结果：</p>
+<p><img src="/anay_pic/sql_pic/9-10-DateFormat.png" alt="Hugo使用图片资源"></p>
+<p>噢，果然是想要的结果~</p>
+<p> </p>
+<p>看看数据库里一共有多少日期记录：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>))<span style="color:#66d9ef">as</span> dt_num,
+	<span style="color:#66d9ef">max</span>( date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)) <span style="color:#66d9ef">as</span> max_dt,
+	<span style="color:#66d9ef">min</span>(date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)) <span style="color:#66d9ef">as</span> min_dt
+<span style="color:#66d9ef">from</span> order_info ;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-11-DateNum.png" alt="Hugo使用图片资源"></p>
+<p>噢，一共有634天啊。从16年9月4日到18年10月17日，一共有634天吗？这是两年多，好像差一些。</p>
+<p> </p>
+<p>她搜索了日期差查询工具（https://riqicha.bmcx.com/），输入日期得到了差值：</p>
+<p><img src="/anay_pic/sql_pic/9-12-Datediff.png" alt="Hugo使用图片资源"></p>
+<p>少了一百多天呢。</p>
+<p>具体缺少哪些天？想想怎么能取出来。</p>
+<p>哎，可以先看每一年缺少多少天。只取日期中的年，然后对这一年的日期先去重再count个数。</p>
+<p> </p>
+<p>看看这样取出来的是不是年份：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>),
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y&#39;</span>)
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">5</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-13-Year.png" alt="Hugo使用图片资源"></p>
+<p>果然如此。</p>
+<p>计算每年有多少天：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y&#39;</span>) <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">year</span>,
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>))<span style="color:#66d9ef">as</span> dt_num
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y&#39;</span>);
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-14-YearDays.png" alt="Hugo使用图片资源"></p>
+<p>噢，17年的数据比较完整，只差几天。具体差在哪个月呢？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>) <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">month</span>,
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>))<span style="color:#66d9ef">as</span> dt_num
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">where</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017&#39;</span>
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>);
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-15-MonthDays.png" alt="Hugo使用图片资源"></p>
+<p>哦哦，只有1月的数据不完整，其他时间都有。</p>
+<p> </p>
+<p> </p>
+<p>小不懂开心地告诉于雷自己的发现，讲她如何判断出哪段时间日志记录不全。</p>
+<p>于雷：不错。**分析时好奇心很重要，好奇会让你发现问题。**提出问题后，结合掌握的工具，可以抽丝剥茧，层层深入，找到答案。在这个过程中，不断和数据互动，你提一个问题，数据告诉你一点信息，很像解谜游戏，其实很好玩，充满趣味和成就感。</p>
+<p>小不懂不住地点头：是的，感觉自己像侦探一样，很开心。</p>
+<p>于雷：嗯嗯。那我们用17年3月的数据，来做日报。针对你的第二个问题，对那些在order_info中，但不在order_item的订单，要怎么处理。你先探究一下，这些订单的订单状态是什么。</p>
+<p>小不懂：好。</p>
+<p> </p>
+<p>小不懂想了想，要把关联不到的订单也取出来，需要用order_info  左连接 order_item，关联条件是order_id 相等。关联后，没关联上的订单，对应order_item 记录是空值。取出这些空值的记录，看看数据长什么样子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> 
+<span style="color:#66d9ef">from</span> order_info 
+<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+order_items
+<span style="color:#66d9ef">on</span> order_info.order_id <span style="color:#f92672">=</span> order_items.order_id
+<span style="color:#66d9ef">where</span> order_items.order_id <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">null</span> 
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">3</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-16-null.png" alt="Hugo使用图片资源"></p>
+<p>哦，好几个是取消、unavailable状态的。按订单状态分组，统计每类订单个数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	order_info.order_status, 
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> order_num 
+<span style="color:#66d9ef">from</span> order_info 
+<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+order_items
+<span style="color:#66d9ef">on</span> order_info.order_id <span style="color:#f92672">=</span> order_items.order_id
+<span style="color:#66d9ef">where</span> order_items.order_id <span style="color:#66d9ef">is</span> <span style="color:#66d9ef">null</span> 
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> order_info.order_status;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-17-NullStatus.png" alt="Hugo使用图片资源"></p>
+<p>哦，不在order_items里的订单，基本都是那些unavailable、取消的订单啊。那在做日报时，应该不需要把它们加进来。</p>
+<p> </p>
+<p>小不懂告诉于雷：关联不上的订单主要是取消、unavailable的订单。那我觉得做日报不需要考虑这些订单。我们只统计最终完成的订单，也就是送到顾客手里的订单就好。</p>
+<p>于雷：unavailable是卖家没有回应的订单，也属于一类取消的情况。做日报时，如果我们只关注成交订单数、订单金额，确实不需要这些未成单的订单。但如果我们也关注，顾客下单后的体验，想知道顾客的100个订单，最终有多少真正成交了，就不能忽视这类情况。</p>
+<p> </p>
+<p>小不懂：噢，所以我们<strong>需要根据目的来判断数据处理方法</strong>。</p>
+<p>于雷：对。我们在日报里增加一下这类订单的情况吧。你觉得怎么衡量合适？</p>
+<p>小不懂歪着头想了想：未完成订单数，或者未完成订单的占比？</p>
+<p>于雷：嗯。未完成订单名字太长了，可以统称为取消订单。取消订单数绝对值表示数量级，比例表示占总体的比例。**一般来说，对整体规模数据用绝对值呈现，可以给大家直观的认知，而部分数据，用比例来呈现更好。**比如只告诉你昨天有200个订单取消，很难判断这个量级是多还是少；但换成3%取消，或者30%取消，可以轻松知道，3%取消水平比较低，30%取消绝对不正常。</p>
+<p> </p>
+<p>小不懂：对哎。确实是这样。总结一下，我需要取出日期、完成订单数、订单金额、取消率，这四个值，对吧？</p>
+<p>于雷：有一点小问题，如果我看到取消率后，想粗略计算取消订单数，或者总订单数，怎么算好呢？</p>
+<p>小不懂：唔，总订单数=完成订单/(1-取消率)， 总订单数*取消率是取消订单数。感觉有点费劲。</p>
+<p>于雷：那怎么能轻松一些呢？</p>
+<p>小不懂：噢，我把总订单数也加上。这样方便很多。</p>
+<p>于雷：对。<strong>设计日报时，需要考虑到用户看到日报时的反应，把数据加工成方便理解、容易获取信息的形式。但同时，切记不能堆砌数字，让人迷失在数据的海洋里，完全丧失获取信息的兴趣。</strong></p>
+<p>小不懂：有什么衡量标准呢？</p>
+<p>于雷：这需要慢慢摸索。不过最重要的是，把自己带入对方的视角，看看能获取到什么信息，是不是好理解。你先去研究看怎么把数据取出来，来日方长，慢慢积累。</p>
+<p> </p>
+<p> </p>
+<p>小不懂回到工位，在本子上列下自己需要的数据：日期、总订单数、完成订单数、取消率、订单金额。看看要怎么处理数据。</p>
+<p>首先，一天的总订单数、完成订单数可以用order_info表取出来，需要取2次，对结果再做除法，可以得到取消率</p>
+<p>其次，订单金额可以通过关联order_item得到</p>
+<p>那么，一个计算方法是：先算好订单数量相关的值,称为order_num表，再通过对 order_info 与 order_item 表关联，得到每天的订单金额，称为order_value表；然后关联 order_num 与 order_value，得到最终结果。</p>
+<p>听起来是可以的，但稍微有一点麻烦，需要多次关联，能不能简化呢？</p>
+<p> </p>
+<p>直接对order_info 左连接order_item，是不是可以得到总订单数和订单金额？</p>
+<p>这样的话，表里order_id会有重复值，但不要紧，去重处理就可以；订单金额直接sum。</p>
+<p>最后再关联取消订单数。</p>
+<p>行得通哎~</p>
+<p>小不懂想清楚后，飞快敲起了代码，先算每天的总订单数和订单金额：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> total_order,
+	<span style="color:#66d9ef">sum</span>(price) <span style="color:#66d9ef">as</span> order_values
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+order_items
+<span style="color:#66d9ef">on</span> order_info.order_id <span style="color:#f92672">=</span> order_items.order_id
+<span style="color:#66d9ef">where</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>);
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-18-TotalOrders.png" alt="Hugo使用图片资源"></p>
+<p>看起来没问题。继续算取消订单数，取消订单有很多种类，那算出总订单数再去掉完成订单数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+	<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> finish_order
+<span style="color:#66d9ef">from</span> order_info
+<span style="color:#66d9ef">where</span> order_status<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;delivered&#39;</span>
+	<span style="color:#66d9ef">and</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>);
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-19-FinishOrders.png" alt="Hugo使用图片资源"></p>
+<p>把两张表关联起来：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	t1.this_day, 
+	t1.total_order, 
+	t2.finish_order,
+	(t1.total_order <span style="color:#f92672">-</span> t2.finish_order)<span style="color:#f92672">/</span>t1.total_order <span style="color:#66d9ef">as</span> cancel_rate,
+	t1.order_values
+<span style="color:#66d9ef">from</span> 
+(
+	<span style="color:#66d9ef">select</span> 
+		date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+		<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> total_order,
+		<span style="color:#66d9ef">sum</span>(price) <span style="color:#66d9ef">as</span> order_values
+	<span style="color:#66d9ef">from</span> order_info
+	<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+	order_items
+	<span style="color:#66d9ef">on</span> order_info.order_id <span style="color:#f92672">=</span> order_items.order_id
+	<span style="color:#66d9ef">where</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)
+)t1
+<span style="color:#66d9ef">join</span> 
+(
+	<span style="color:#66d9ef">select</span> 
+		date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+		<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> finish_order
+	<span style="color:#66d9ef">from</span> order_info
+	<span style="color:#66d9ef">where</span> order_status<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;delivered&#39;</span>
+		<span style="color:#66d9ef">and</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)
+)t2 
+<span style="color:#66d9ef">on</span> t1.this_day <span style="color:#f92672">=</span> t2.this_day;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-20-RawResult.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>小不懂拿着结果和代码给于雷看。</p>
+<p>于雷：嗯，初步看起来没问题，做得不错。有点细节需要优化：取消率和订单金额，数据太长了，调整一下保留小数吧。</p>
+<p>小不懂：好，保留到哪一位？</p>
+<p>于雷：哈哈，你觉得呢？</p>
+<p>小不懂：盲猜一下，保留2位小数？</p>
+<p>于雷：保留小数主要是为了数据的精确度。精确度是不是越高越好呢？也不是。小数太多，看着像一团乱码，看不清楚。**在精确度和易读性之间，权衡取舍的方法是，保留到数据之间有区分度的那一列。**你观察一下，取消率、订单金额这两列，保留到哪一位，数据彼此之间有比较好的区分度。</p>
+<p>小不懂：取消率数值差异比较大，从百分之一到百分之十四，感觉保留2位足够。订单金额的取值范围更大，可以完全省略小数点后的数。</p>
+<p>于雷：对。round函数能把指定字段转化为指定的小数位数，decimals是指定的小数位数，为0时取整。你试试：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">SELECT</span> ROUND(<span style="color:#66d9ef">column_name</span>,decimals) <span style="color:#66d9ef">FROM</span> <span style="color:#66d9ef">table_name</span>
+</code></pre></div><p> </p>
+<p>小不懂当即把取消率和订单价值做了处理：</p>
+<p><code>round((t1.total_order - t2.finish_order)/t1.total_order,2) as cancel_rate,</code>
+<code>round(t1.order_values,0) as order_values</code></p>
+<p><img src="/anay_pic/sql_pic/9-21-Round.png" alt="Hugo使用图片资源"></p>
+<p>这下结果看起来清楚多了。</p>
+<p> </p>
+<p> </p>
+<p>于雷又问小不懂：你看着每天的日报数据，能判断出哪天经营结果好，哪天不好吗？</p>
+<p>小不懂：单看一天的数据判断不了。但很多天连起来看时可以的。</p>
+<p>于雷：对。通过比较这一天与其他天的数据，我们能知道当天相对其他时候，经营表现好还是坏。**做比较是分析中最重要的工具，关键是选择合适的比较对象。**你想想，以3/10这一天为例，可以和哪些天做比较。</p>
+<p> </p>
+<p>小不懂：3/10号，可以和前一天3/9号相比，两天完成订单数、取消率基本持平，订单金额稍多一点；还可以和3/3那天相比，因为按7天一个星期看，它们属于两个星期里相同的一天，比如都是周五，这周五和上周五相比，订单量有很大提升，订单金额持平。</p>
+<p>于雷：和3/9相比，我们称为“<strong>环比</strong>”，和3/3相比，称为“<strong>同比</strong>”。不过，你想想，为什么同样都是周五，可以做比较呢？</p>
+<p>小不懂：因为我们认为，这周五和上周五应该比较相似？</p>
+<p>于雷：嗯。那为什么它们会相似呢？</p>
+<p>小不懂：啊，因为是一周最后一个工作日？我隐约感觉它们是相似的，但想不到其他的解释了。</p>
+<p>于雷：哈哈，因为人类的生产、生活是按照一周7天这个周期来展开的，对大多数人来说，周一开始工作，周五结束工作，周六周日两天休息。下一个周一新循环开始，如此往复。所以，就群体而言，人的生活是规律的，符合7天一个周期这样的周期性。</p>
+<p>小不懂：噢，<strong>因为人的活动有明显的周期性，这个周期是以一周为单位，所以做同比是有意义的。</strong></p>
+<p>于雷：对。你想想，从上面的结果里，用 sql 怎么算出3/10的同环比呢？</p>
+<p> </p>
+<p> </p>
+<p>小不懂：在一张表里有点难。我逐渐感觉到，<strong>sql 的操作对象是数据表</strong>，不能直接操作某几行。可以把这张表复制一份，称为表A 和表B，从表B里找到3/10前7天，也就是3/3的数据，和表A的3/10做匹配。</p>
+<p>于雷：嗯。所以你需要一个日期差函数,datediff,返回两个日期差，你自己试试吧。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">datediff(date1,date2)
+</code></pre></div><p>于雷：还有一个函数你可能会用到，date_sub,从日期减去指定时间间隔：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql">date_sub(date,INTERVAL expr <span style="color:#66d9ef">type</span>)
+</code></pre></div><p>示例代码是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> date_sub(<span style="color:#e6db74">&#39;2017-03-01&#39;</span>,INTERVAL <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">day</span>) <span style="color:#66d9ef">from</span> order_info <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p> </p>
+<p> </p>
+<p>于雷：对了，你的计算代码挺长的。把这张表复制一份再关联，意味着你需要把代码copy一遍，代码太冗长。你可以把上面的结果存储为一张数据表，直接调用就可以。具体语法是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> new_table
+  <span style="color:#66d9ef">AS</span> 
+  <span style="color:#66d9ef">SELECT</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">FROM</span> old_table;
+</code></pre></div><p>小不懂得到了2个新工具，兴奋地回去。</p>
+<p> </p>
+<p>小不懂想了想，先看看这些日期和3/1的日期差：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	datediff( date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>),<span style="color:#e6db74">&#39;2017-03-01&#39;</span>) <span style="color:#66d9ef">as</span> date_diff 
+<span style="color:#66d9ef">from</span> order_info 
+<span style="color:#66d9ef">where</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-22-Datediff.png" alt="Hugo使用图片资源"></p>
+<p>这样就能取出日期差。</p>
+<p> </p>
+<p>再来看建表的语法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">create</span> <span style="color:#66d9ef">table</span> daily_order
+<span style="color:#66d9ef">as</span>
+	<span style="color:#66d9ef">select</span> 
+		t1.this_day, 
+		t1.total_order, 
+		t2.finish_order,
+		round((t1.total_order <span style="color:#f92672">-</span> t2.finish_order)<span style="color:#f92672">/</span>t1.total_order,<span style="color:#ae81ff">2</span>) <span style="color:#66d9ef">as</span> cancel_rate,
+		round(t1.order_values,<span style="color:#ae81ff">0</span>) <span style="color:#66d9ef">as</span> order_values
+	<span style="color:#66d9ef">from</span> 
+	(
+		<span style="color:#66d9ef">select</span> 
+			date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+			<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> total_order,
+			<span style="color:#66d9ef">sum</span>(price) <span style="color:#66d9ef">as</span> order_values
+		<span style="color:#66d9ef">from</span> order_info
+		<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+		order_items
+		<span style="color:#66d9ef">on</span> order_info.order_id <span style="color:#f92672">=</span> order_items.order_id
+		<span style="color:#66d9ef">where</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+		<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)
+	)t1
+	<span style="color:#66d9ef">join</span> 
+	(
+		<span style="color:#66d9ef">select</span> 
+			date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>) <span style="color:#66d9ef">as</span> this_day,
+			<span style="color:#66d9ef">count</span>(<span style="color:#66d9ef">distinct</span> order_info.order_id) <span style="color:#66d9ef">as</span> finish_order
+		<span style="color:#66d9ef">from</span> order_info
+		<span style="color:#66d9ef">where</span> order_status<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;delivered&#39;</span>
+			<span style="color:#66d9ef">and</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m&#39;</span>)<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;2017-03&#39;</span>
+		<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> date_format(order_purchase_timestamp, <span style="color:#e6db74">&#39;%Y-%m-%d&#39;</span>)
+	)t2 
+	<span style="color:#66d9ef">on</span> t1.this_day <span style="color:#f92672">=</span> t2.this_day;
+</code></pre></div><p>表创建好了，验证一下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> <span style="color:#f92672">*</span> <span style="color:#66d9ef">from</span> daily_order;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-23-CreateTable.png" alt="Hugo使用图片资源"></p>
+<p>哇，这样就能创建一张表啊。</p>
+<p>下面需要用daily_order 关联自身，关联条件是，后一张表的日期，是前一张表的前7天。</p>
+<p>哎不对，代码报错。不能用datediff函数来进行关联操作。。。</p>
+<p>嗷，需要用到于雷哥说的，date_sub。把前一张表的日期减7天。来试试：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>  this_day,date_sub(this_day, INTERVAL <span style="color:#ae81ff">2</span> <span style="color:#66d9ef">day</span>) <span style="color:#66d9ef">from</span> daily_order <span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-24-DateSub.png" alt="Hugo使用图片资源"></p>
+<p>这样应该可以了，用date_sub后的日期来关联：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	A.this_day,
+	A.total_order,
+	A.finish_order,
+	A.cancel_rate,
+	A.order_values,
+	A.finish_order<span style="color:#f92672">/</span>B.finish_order<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">as</span> tongbi_order,
+	A.order_values<span style="color:#f92672">/</span>B.order_values<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span> <span style="color:#66d9ef">as</span> tongbi_value,
+	B.this_day <span style="color:#66d9ef">as</span> tongbi_day,
+	B.finish_order,
+	B.order_values
+<span style="color:#66d9ef">from</span> 
+(
+<span style="color:#66d9ef">select</span> 
+	<span style="color:#f92672">*</span>,
+	date_sub(this_day, INTERVAL <span style="color:#ae81ff">7</span> <span style="color:#66d9ef">day</span>) <span style="color:#66d9ef">as</span> tongbi_day
+<span style="color:#66d9ef">from</span> daily_order
+)A	
+<span style="color:#66d9ef">left</span> <span style="color:#66d9ef">join</span> 
+daily_order B 
+<span style="color:#66d9ef">on</span> A.tongbi_day <span style="color:#f92672">=</span> B.this_day
+<span style="color:#66d9ef">order</span> <span style="color:#66d9ef">by</span> this_day;
+</code></pre></div><p><img src="/anay_pic/sql_pic/9-25-Report.png" alt="Hugo使用图片资源"></p>
+<p>啊，结果没问题。不过有点需要调整的地方：</p>
+<ol>
+<li>订单量和订单金额的同比，应该保留合适的小数</li>
+<li>还需要算环比数据</li>
+<li>怎么能把3/1~7的同比数据补充上呢？</li>
+</ol>
+<p>小不懂想了想，3个问题难度不一，都可以解决。</p>
+<p> </p>
+<p>读者朋友，试试看,你能解决这些问题吗？</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
