@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-cn" lang="zh-cn">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.82.0" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>10.  高级用法——分类讨论 &middot; 有所思</title>
+  <meta name="description" content="按条件判断分类，做不同处理" />
+
+  
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="https://shuiseeery.github.io/css/hyde.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="https://shuiseeery.github.io/"><h1>有所思</h1></a>
+      <p class="lead">
+       偶有所感，聊以慰藉 
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="https://shuiseeery.github.io/">Home</a> </li>
+        
+      </ul>
+    </nav>
+
+    <p>&copy; 2021. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>10.  高级用法——分类讨论</h1>
+  <time datetime=2021-01-21T08:36:54-0700 class="post-date">Thu, Jan 21, 2021</time>
+  <p> </p>
+<p>小不懂刚刚更新完昨天的日报，于雷找她，说需要对品类结构做个整体的分析。</p>
+<p>于雷：运营同学想了解各品类的现状，想对不同品类做差异化运营策略。具体来说，想知道</p>
+<ul>
+<li>哪些品类单价低、订单多，对这些品类，引导交叉销售，如买洗护用品推荐美妆产品</li>
+<li>哪些品类单价低、订单少，对这些品类，研究品类特点，寻找提升订单的方法</li>
+<li>哪些品类单价高、订单多，对这些品类，加大宣传曝光，吸引更多人来买</li>
+<li>哪些品类单价高、订单少，对这些品类，适当发优惠券，促进用户购买</li>
+</ul>
+<p>小不懂：为什么关注单价高低、订单多少呢？</p>
+<p>于雷：<strong>这要从业务的模式说起。网上超市业务的经营目标是：持续不断地把商品卖给用户，让用户买得越多越好</strong>。我们最关注的是总销售额。而总销售额，是每笔订单金额之和。总销售额=订单数*单均价。提升销售额的方法，要么提高订单数，要么提高单均价。所以品类运营，也要围绕着这个目标来做。一个品类对网上超市整体的贡献，或者体现在贡献订单数上、或者体现在提高单均价上面。</p>
+<p>小不懂：哦，也就是说，<strong>大家的主要工作，需要围绕核心目标展开？</strong></p>
+<p>于雷：对。这是除后勤、行政等职能外，大多数工作岗位存在的原因。所以<strong>工作时，需要常常想，现在做的工作，和公司整体的目标，是不是一致的，按照对目标的影响大小，来判断一项工作的重要性。</strong></p>
+<p>小不懂：嗯嗯。学到了。</p>
+<p>于雷：说回这个分析，怎么衡量一个品类的单价高低、订单多少呢？</p>
+<p>小不懂：嗯，可以拿平均水平做参照？比平均值高，就是更好的。</p>
+<p>于雷：这种思路也可以，你试试看。</p>
+<p> </p>
+<p>小不懂想了想，需要先算出，每个品类的单价（平均价格）、订单数量，再求平均。所以代码要这样写：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span> 
+	<span style="color:#66d9ef">avg</span>(order_num) <span style="color:#66d9ef">as</span> avg_order,
+	<span style="color:#66d9ef">avg</span>(avg_value) <span style="color:#66d9ef">as</span> avg_category_value
+<span style="color:#66d9ef">from</span>
+	(
+	<span style="color:#66d9ef">select</span> 
+		product_category_name,
+		<span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> order_num,
+		<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> avg_value
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info;
+</code></pre></div><p>结果是：平均1391个订单，单价160元。</p>
+<p><img src="/anay_pic/sql_pic/10-1-cetegory_avg.png" alt="Hugo使用图片资源"></p>
+<p> </p>
+<p>那么哪些品类订单多、单价也高呢？在所有品类里做筛选：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	<span style="color:#f92672">*</span>
+<span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span> 
+		product_category_name,
+		<span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> order_num,
+		<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> avg_value
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/10-2-exp1.png" alt="Hugo使用图片资源"></p>
+<p>只有钟表和网红产品啊。</p>
+<p> </p>
+<p>再看看销量高，单价低的产品。这次把单价后的小数去掉，看着太费劲了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	<span style="color:#f92672">*</span>
+<span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span> 
+		product_category_name,
+		<span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> order_num,
+		round(<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">sum</span>(order_num)) <span style="color:#66d9ef">as</span> avg_value
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+<span style="color:#66d9ef">where</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;</span><span style="color:#ae81ff">160</span>;
+</code></pre></div><p><img src="/anay_pic/sql_pic/10-3-exp2.png" alt="Hugo使用图片资源"></p>
+<p>类似地，小不懂也找到了销量低、单价高，销量低、单价低的品类。</p>
+<p> </p>
+<p>她告诉于雷结果。于雷：挺好，你能不能给每个品类打个标签，标注下它们属于哪个品类？</p>
+<p>小不懂：嗯，应该可以。不过我不知道用什么函数来做……</p>
+<p>于雷：case when 是专门针对这种用途的。例如下面这段代码，你看看它实现了什么功能。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	product_category_name,
+	(<span style="color:#66d9ef">case</span> 
+		<span style="color:#66d9ef">when</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;家具装饰&#39;</span> <span style="color:#66d9ef">or</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;家具2&#39;</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;家具厨卫&#39;</span>
+		<span style="color:#66d9ef">when</span> product_category_name<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;电脑器材&#39;</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;数码产品&#39;</span>
+		<span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;其他&#39;</span>
+	<span style="color:#66d9ef">end</span>) <span style="color:#66d9ef">as</span> category_name2
+<span style="color:#66d9ef">from</span> seller_product_summary
+<span style="color:#66d9ef">where</span> product_category_name <span style="color:#66d9ef">in</span> (<span style="color:#e6db74">&#39;家具装饰&#39;</span>,<span style="color:#e6db74">&#39;家具2&#39;</span>,<span style="color:#e6db74">&#39;电脑器材&#39;</span>,<span style="color:#e6db74">&#39;网红产品&#39;</span>)
+<span style="color:#66d9ef">limit</span> <span style="color:#ae81ff">10</span>;
+</code></pre></div><p>小不懂观察了一会儿：case的意思是在……情况下，当品类名称是“家居装饰&quot;或者”家具2&quot;的时候，then 的意思是“那么”，‘家具厨卫'。当品类名称是电脑器材时，那么数码产品，else是余下别的情况，’其他',end 意思是结束。最后把它整体重命名为category_name2,  看起来像是分情况讨论？是不是按上述情况打标记，把标记存储为category_name2？</p>
+<p>于雷：你在数据库里执行下代码，看看有什么结果。</p>
+<p> </p>
+<p>敲进去后，结果确如所料。</p>
+<p><img src="/anay_pic/sql_pic/10-4-grammer.png" alt="Hugo使用图片资源"></p>
+<p>小不懂很开心：啊。<strong>case when 是分类讨论的意思。when 后面加的是判断条件，then 是判断的结果</strong>，对不对呢？</p>
+<p>于雷：是的。对符合判断条件的那些行，加一个标记，把标记作为新的一列。在里面可以加多个判断条件when，也可以只加一个，看情况选择使用。</p>
+<p>小不懂：when后面可以加哪些判断条件呢？when 让我想起了where，where 后面也是跟着判断条件，<strong>是不是所有where后的判断条件，在when里面都可以用</strong>？</p>
+<p>于雷：对。大于、小于、等于、不等于、in 都可以用，多个条件也可以用and、or来连接组合。另外，你想想，如果某一行，满足多个when里面的条件会怎么样？</p>
+<p>小不懂：啊？满足多个条件啊，但标记只会有一个，选哪个呢？是不是按某种规则约定选择某一个？</p>
+<p>于雷：对。<strong>case when 的规则是，从上到下执行，如果满足第一个条件，余下代码不会继续执行。也就是，满足多个when时，以第一个为准。</strong></p>
+<p> </p>
+<p>小不懂回去尝试新的工具。她回忆一下case when的规则，想了想，只需要给订单多、单价高的品类打个标记，余下类似处理就可以。她开心地敲起代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	<span style="color:#f92672">*</span>,
+	(<span style="color:#66d9ef">case</span> 
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价低&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价低&#39;</span>
+		<span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;其他&#39;</span>
+	<span style="color:#66d9ef">end</span>) <span style="color:#66d9ef">as</span> category_type
+<span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span> 
+		product_category_name,
+		<span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> order_num,
+		round(<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">sum</span>(order_num)) <span style="color:#66d9ef">as</span> avg_value
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info;
+</code></pre></div><p><img src="/anay_pic/sql_pic/10-5-result.png" alt="Hugo使用图片资源"></p>
+<p>乌拉，结果没问题哎，和之前写得一样~</p>
+<p> </p>
+<p>case when 的结果变成了一个新列，可以对它继续做统计哎，试试看：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sql" data-lang="sql"><span style="color:#66d9ef">select</span>
+	(<span style="color:#66d9ef">case</span> 
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价低&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价低&#39;</span>
+		<span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;其他&#39;</span>
+	<span style="color:#66d9ef">end</span>) <span style="color:#66d9ef">as</span> category_type,
+	<span style="color:#66d9ef">count</span>(<span style="color:#ae81ff">1</span>) <span style="color:#66d9ef">as</span> category_num
+<span style="color:#66d9ef">from</span> 
+	(
+	<span style="color:#66d9ef">select</span> 
+		product_category_name,
+		<span style="color:#66d9ef">sum</span>(order_num) <span style="color:#66d9ef">as</span> order_num,
+		round(<span style="color:#66d9ef">sum</span>(order_values)<span style="color:#f92672">/</span><span style="color:#66d9ef">sum</span>(order_num)) <span style="color:#66d9ef">as</span> avg_value
+	<span style="color:#66d9ef">from</span> seller_product_summary
+	<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> product_category_name
+	)category_info
+<span style="color:#66d9ef">group</span> <span style="color:#66d9ef">by</span> 
+	(<span style="color:#66d9ef">case</span> 
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单多、单价低&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&gt;</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价高&#39;</span>
+		<span style="color:#66d9ef">when</span> order_num<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">1391</span> <span style="color:#66d9ef">and</span> avg_value<span style="color:#f92672">&lt;=</span><span style="color:#ae81ff">160</span> <span style="color:#66d9ef">then</span> <span style="color:#e6db74">&#39;订单少、单价低&#39;</span>
+		<span style="color:#66d9ef">else</span> <span style="color:#e6db74">&#39;其他&#39;</span>
+	<span style="color:#66d9ef">end</span>);
+</code></pre></div><p><img src="/anay_pic/sql_pic/10-6-groupby.png" alt="Hugo使用图片资源"></p>
+<p>可以的~</p>
+<p>没问题哎~</p>
+<p> </p>
+<p>小不懂把结果告诉于雷，于雷问：数据看起来没问题。不过这个结果，你看看从中能不能发现什么问题？</p>
+<p>小不懂想了想：我们订单少、单价低的品类太多。订单多、单价高的优势品类太少。</p>
+<p>于雷：对。所以<strong>除了基础的数据之外，可以加上自己对数据的解读，作为建议一并提供给运营同学</strong>。</p>
+<p>小不懂点点头：嗯，是的。我刚刚只顾着把数据算出来，没有仔细观察。</p>
+<p>于雷：哈哈，估计你沉浸在对新工具的兴奋中，不能自拔。以后多注意就好。<strong>不要把自己单纯作为人形计算器，重要的是分析理解数据，从中找到隐含的规律</strong>。</p>
+<p>小不懂挠挠头，不好意思地笑了。</p>
+<p> </p>
+<p>于雷：不过说归说，该练的基本功还是要练的。工欲善其事必先利其器。我们现在的品类，很明显有些可以做合并，比如家具装饰、家具2之类的，你试着自己理一理，看看能不能把这些品类按照消费场景，分成不超过5个大类。</p>
+<p>小不懂接到新任务，回去探索品类结构了。</p>
+<p> </p>
+<p>亲爱的读者，你试试呢？你会怎么分类呢？</p>
+<p>  </p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>

@@ -326,5 +326,28 @@ select max(order_purchase_timestamp) as max_time, min(order_purchase_timestamp) 
  再看另外一张订单商品明细表，order_items：</description>
     </item>
     
+    <item>
+      <title>10.  高级用法——分类讨论</title>
+      <link>https://shuiseeery.github.io/post/10-casewhen/</link>
+      <pubDate>Thu, 21 Jan 2021 08:36:54 -0700</pubDate>
+      
+      <guid>https://shuiseeery.github.io/post/10-casewhen/</guid>
+      <description>小不懂刚刚更新完昨天的日报，于雷找她，说需要对品类结构做个整体的分析。
+于雷：运营同学想了解各品类的现状，想对不同品类做差异化运营策略。具体来说，想知道
+ 哪些品类单价低、订单多，对这些品类，引导交叉销售，如买洗护用品推荐美妆产品 哪些品类单价低、订单少，对这些品类，研究品类特点，寻找提升订单的方法 哪些品类单价高、订单多，对这些品类，加大宣传曝光，吸引更多人来买 哪些品类单价高、订单少，对这些品类，适当发优惠券，促进用户购买  小不懂：为什么关注单价高低、订单多少呢？
+于雷：这要从业务的模式说起。网上超市业务的经营目标是：持续不断地把商品卖给用户，让用户买得越多越好。我们最关注的是总销售额。而总销售额，是每笔订单金额之和。总销售额=订单数*单均价。提升销售额的方法，要么提高订单数，要么提高单均价。所以品类运营，也要围绕着这个目标来做。一个品类对网上超市整体的贡献，或者体现在贡献订单数上、或者体现在提高单均价上面。
+小不懂：哦，也就是说，大家的主要工作，需要围绕核心目标展开？
+于雷：对。这是除后勤、行政等职能外，大多数工作岗位存在的原因。所以工作时，需要常常想，现在做的工作，和公司整体的目标，是不是一致的，按照对目标的影响大小，来判断一项工作的重要性。
+小不懂：嗯嗯。学到了。
+于雷：说回这个分析，怎么衡量一个品类的单价高低、订单多少呢？
+小不懂：嗯，可以拿平均水平做参照？比平均值高，就是更好的。
+于雷：这种思路也可以，你试试看。
+ 小不懂想了想，需要先算出，每个品类的单价（平均价格）、订单数量，再求平均。所以代码要这样写：
+select avg(order_num) as avg_order, avg(avg_value) as avg_category_value from ( select product_category_name, sum(order_num) as order_num, sum(order_values)/sum(order_num) as avg_value from seller_product_summary group by product_category_name )category_info; 结果是：平均1391个订单，单价160元。
+ 那么哪些品类订单多、单价也高呢？在所有品类里做筛选：
+select * from ( select product_category_name, sum(order_num) as order_num, sum(order_values)/sum(order_num) as avg_value from seller_product_summary group by product_category_name )category_info where order_num&amp;gt;1391 and avg_value&amp;gt;160; 只有钟表和网红产品啊。
+ 再看看销量高，单价低的产品。这次把单价后的小数去掉，看着太费劲了：</description>
+    </item>
+    
   </channel>
 </rss>
